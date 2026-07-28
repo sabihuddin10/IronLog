@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../data/body_profile_store.dart';
 import '../../utils/health_formulas.dart';
@@ -37,7 +38,7 @@ class WaterIntakeCalculatorScreen extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 12),
           child: Text(
             '$glasses glasses recommended per day',
-            style: Premium.body(12, weight: FontWeight.w600, color: Premium.textDim),
+            style: Premium.body(context, 12, weight: FontWeight.w600, color: context.colors.textSecondary),
           ),
         ),
         PremiumWaterGlasses(total: glasses, filled: 0),

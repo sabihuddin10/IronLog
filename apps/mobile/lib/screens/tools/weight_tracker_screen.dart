@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../models/weight_goal.dart';
@@ -200,11 +201,11 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              gradient: Premium.accentGradient,
+              gradient: context.colors.accentGradient,
               borderRadius: BorderRadius.circular(14),
-              boxShadow: Premium.accentGlowShadow(),
+              boxShadow: context.colors.accentGlowShadow(),
             ),
-            child: Icon(Icons.emoji_events, size: 24, color: Premium.ink),
+            child: Icon(Icons.emoji_events, size: 24, color: context.colors.onAccent),
           ),
           title: const Text('Goal Achieved!'),
           content: Text('You reached your target of ${goal.targetWeightKg.toStringAsFixed(1)} kg.'),
@@ -219,7 +220,7 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       floatingActionButton: _GradientFab(onTap: _addRecord),
       body: SafeArea(
         bottom: false,
@@ -227,7 +228,7 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
           future: _future,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator(color: Premium.accent));
+              return Center(child: CircularProgressIndicator(color: context.colors.accent));
             }
             final data = snapshot.data;
             final allLogs = <WeightLog>[...data?.logs ?? const []]
@@ -242,9 +243,9 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
               return Column(
                 children: [
                   _ScreenHeader(title: 'Weight Tracker'),
-                  const Expanded(
+                  Expanded(
                     child: Center(
-                      child: Text('No weight entries yet.', style: TextStyle(color: Premium.textDim)),
+                      child: Text('No weight entries yet.', style: TextStyle(color: context.colors.textSecondary)),
                     ),
                   ),
                 ],
@@ -319,7 +320,7 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Goals', style: Premium.heading(16)),
+                    Text('Goals', style: Premium.heading(context, 16)),
                     _IconChipButton(
                       icon: Icons.add,
                       onTap: () => _openGoalDialog(currentWeight: current),
@@ -332,7 +333,7 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
                       'No goals yet. Add one to track your progress.',
-                      style: Premium.body(12.5, color: Premium.textDim),
+                      style: Premium.body(context, 12.5, color: context.colors.textSecondary),
                     ),
                   )
                 else
@@ -380,16 +381,16 @@ class _ScreenHeader extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: Premium.surface2,
+                  color: context.colors.cardBackground,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Premium.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back, size: 16, color: Premium.textDim),
+                child: Icon(Icons.arrow_back, size: 16, color: context.colors.textSecondary),
               ),
             ),
           ),
           const SizedBox(width: 14),
-          Text(title, style: Premium.heading(19)),
+          Text(title, style: Premium.heading(context, 19)),
         ],
       ),
     );
@@ -406,7 +407,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(label, style: Premium.heading(16)),
+      child: Text(label, style: Premium.heading(context, 16)),
     );
   }
 }
@@ -428,14 +429,14 @@ class _GradientFab extends StatelessWidget {
         shape: const CircleBorder(),
         child: Ink(
           decoration: BoxDecoration(
-            gradient: Premium.accentGradient,
+            gradient: context.colors.accentGradient,
             shape: BoxShape.circle,
-            boxShadow: Premium.accentGlowShadow(blur: 18, spread: -2),
+            boxShadow: context.colors.accentGlowShadow(blur: 18, spread: -2),
           ),
           child: InkWell(
             customBorder: const CircleBorder(),
             onTap: onTap,
-            child: Icon(Icons.add, color: Premium.ink),
+            child: Icon(Icons.add, color: context.colors.onAccent),
           ),
         ),
       ),
@@ -461,11 +462,11 @@ class _IconChipButton extends StatelessWidget {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: Premium.surface2,
+            color: context.colors.cardBackground,
             borderRadius: BorderRadius.circular(9),
-            border: Border.all(color: Premium.border),
+            border: Border.all(color: context.colors.border),
           ),
-          child: Icon(icon, size: 16, color: Premium.textDim),
+          child: Icon(icon, size: 16, color: context.colors.textSecondary),
         ),
       ),
     );
@@ -487,10 +488,10 @@ class _StatBlock extends StatelessWidget {
       children: [
         Text(
           value,
-          style: Premium.heading(18, color: emphasize ? Premium.accent : Premium.text),
+          style: Premium.heading(context, 18, color: emphasize ? context.colors.accent : context.colors.textPrimary),
         ),
         const SizedBox(height: 3),
-        Text(label, style: Premium.body(11, color: Premium.textFaint)),
+        Text(label, style: Premium.body(context, 11, color: context.colors.textFaint)),
       ],
     );
   }
@@ -529,20 +530,20 @@ class _ChartCard extends StatelessWidget {
             children: [
               RichText(
                 text: TextSpan(
-                  style: Premium.heading(22),
+                  style: Premium.heading(context, 22),
                   children: [
                     TextSpan(text: current.toStringAsFixed(1)),
-                    TextSpan(text: ' kg', style: Premium.body(12.5, color: Premium.textDim)),
+                    TextSpan(text: ' kg', style: Premium.body(context, 12.5, color: context.colors.textSecondary)),
                   ],
                 ),
               ),
               PopupMenuButton<_Range>(
                 initialValue: range,
                 onSelected: onRangeChanged,
-                color: Premium.surface2,
+                color: context.colors.cardBackground,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(Premium.radiusMd),
-                  side: const BorderSide(color: Premium.border),
+                  side: BorderSide(color: context.colors.border),
                 ),
                 itemBuilder: (context) => [
                   for (final r in _Range.values)
@@ -550,9 +551,9 @@ class _ChartCard extends StatelessWidget {
                       value: r,
                       child: Text(
                         r.longLabel,
-                        style: Premium.body(
+                        style: Premium.body(context, 
                           13,
-                          color: r == range ? Premium.accent : Premium.text,
+                          color: r == range ? context.colors.accent : context.colors.textPrimary,
                           weight: r == range ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
@@ -561,16 +562,16 @@ class _ChartCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Premium.surface3,
-                    border: Border.all(color: Premium.border),
+                    color: context.colors.surfaceHigh,
+                    border: Border.all(color: context.colors.border),
                     borderRadius: BorderRadius.circular(9),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(range.longLabel, style: Premium.body(12, color: Premium.textDim)),
+                      Text(range.longLabel, style: Premium.body(context, 12, color: context.colors.textSecondary)),
                       const SizedBox(width: 4),
-                      const Icon(Icons.expand_more, size: 14, color: Premium.textDim),
+                      Icon(Icons.expand_more, size: 14, color: context.colors.textSecondary),
                     ],
                   ),
                 ),
@@ -598,14 +599,13 @@ class _WeightChart extends StatelessWidget {
 
   const _WeightChart({required this.logs, required this.average, required this.goal});
 
-  static const _barGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Premium.accent, Premium.accent2],
-  );
-
   @override
   Widget build(BuildContext context) {
+    final barGradient = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [context.colors.accent, context.colors.accent2],
+    );
     final values = logs.map((l) => l.weight).toList()..addAll([average, ?goal]);
     final minY = values.reduce((a, b) => a < b ? a : b) - 3;
     final maxY = values.reduce((a, b) => a > b ? a : b) + 3;
@@ -634,7 +634,7 @@ class _WeightChart extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     DateFormat.Md().format(logs[i].loggedAt),
-                    style: Premium.body(10.5, color: Premium.textFaint),
+                    style: Premium.body(context, 10.5, color: context.colors.textFaint),
                   ),
                 );
               },
@@ -645,14 +645,14 @@ class _WeightChart extends StatelessWidget {
           horizontalLines: [
             HorizontalLine(
               y: average,
-              color: Premium.textFaint,
+              color: context.colors.textFaint,
               strokeWidth: 1.5,
               dashArray: const [6, 4],
             ),
             if (goal != null)
               HorizontalLine(
                 y: goal!,
-                color: Premium.good,
+                color: context.colors.success,
                 strokeWidth: 1.5,
                 dashArray: const [6, 4],
               ),
@@ -665,7 +665,7 @@ class _WeightChart extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: logs[i].weight,
-                  gradient: _barGradient,
+                  gradient: barGradient,
                   width: barWidth,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(6),
@@ -694,16 +694,19 @@ class _CelebrateCard extends StatelessWidget {
     final delta = (goal.startWeightKg - current).abs();
     final direction = goal.startWeightKg >= goal.targetWeightKg ? 'down' : 'up';
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(19),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF132018), Premium.surface],
+          colors: isDark
+              ? [Color.lerp(context.colors.surface, context.colors.accent, 0.22)!, context.colors.surface]
+              : [Color.lerp(Colors.white, context.colors.accent, 0.08)!, Colors.white],
         ),
         borderRadius: BorderRadius.circular(Premium.radiusXxl),
-        border: Border.all(color: Premium.accent.withValues(alpha: 0.25)),
+        border: Border.all(color: context.colors.accent.withValues(alpha: isDark ? 0.25 : 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -712,23 +715,23 @@ class _CelebrateCard extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              gradient: Premium.accentGradient,
+              gradient: context.colors.accentGradient,
               borderRadius: BorderRadius.circular(14),
-              boxShadow: Premium.accentGlowShadow(),
+              boxShadow: context.colors.accentGlowShadow(),
             ),
-            child: Icon(Icons.emoji_events, size: 23, color: Premium.ink),
+            child: Icon(Icons.emoji_events, size: 23, color: context.colors.onAccent),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('\u{1F389} Goal reached!', style: Premium.heading(14, weight: FontWeight.w700)),
+                Text('\u{1F389} Goal reached!', style: Premium.heading(context, 14, weight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 Text(
                   'You hit your target weight of ${goal.targetWeightKg.toStringAsFixed(1)} kg '
                   '— ${delta.toStringAsFixed(1)} kg $direction since you started. Amazing consistency.',
-                  style: Premium.body(11.5, color: Premium.textDim),
+                  style: Premium.body(context, 11.5, color: context.colors.textSecondary),
                 ),
               ],
             ),
@@ -761,14 +764,14 @@ class _GoalProgress extends StatelessWidget {
           child: Container(
             width: double.infinity,
             height: 8,
-            color: Premium.surface3,
+            color: context.colors.surfaceHigh,
             child: FractionallySizedBox(
               alignment: Alignment.centerLeft,
               widthFactor: fraction,
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: Premium.accentGradient,
-                  boxShadow: [BoxShadow(color: Premium.accentGlow, blurRadius: 10)],
+                  gradient: context.colors.accentGradient,
+                  boxShadow: [BoxShadow(color: context.colors.accentGlow, blurRadius: 10)],
                 ),
               ),
             ),
@@ -778,20 +781,20 @@ class _GoalProgress extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Start · ${start.toStringAsFixed(1)} kg', style: Premium.body(11, color: Premium.textFaint, weight: FontWeight.w600)),
+            Text('Start · ${start.toStringAsFixed(1)} kg', style: Premium.body(context, 11, color: context.colors.textFaint, weight: FontWeight.w600)),
             Text.rich(
               TextSpan(
-                style: Premium.body(11, color: Premium.textFaint, weight: FontWeight.w600),
+                style: Premium.body(context, 11, color: context.colors.textFaint, weight: FontWeight.w600),
                 children: [
                   const TextSpan(text: 'Now · '),
                   TextSpan(
                     text: '${current.toStringAsFixed(1)} kg',
-                    style: const TextStyle(color: Premium.text, fontWeight: FontWeight.w700),
+                    style: TextStyle(color: context.colors.textPrimary, fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
             ),
-            Text('Goal · ${target.toStringAsFixed(1)} kg', style: Premium.body(11, color: Premium.textFaint, weight: FontWeight.w600)),
+            Text('Goal · ${target.toStringAsFixed(1)} kg', style: Premium.body(context, 11, color: context.colors.textFaint, weight: FontWeight.w600)),
           ],
         ),
         const SizedBox(height: 18),
@@ -830,17 +833,17 @@ class _GoalTile extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 gradient: goal.achieved
-                    ? Premium.accentGradient
+                    ? context.colors.accentGradient
                     : LinearGradient(
-                        colors: [Premium.accentDim, Premium.accent.withValues(alpha: 0.05)],
+                        colors: [context.colors.accentDim, context.colors.accent.withValues(alpha: 0.05)],
                       ),
                 borderRadius: BorderRadius.circular(11),
-                border: goal.achieved ? null : Border.all(color: Premium.accent.withValues(alpha: 0.18)),
+                border: goal.achieved ? null : Border.all(color: context.colors.accent.withValues(alpha: 0.18)),
               ),
               child: Icon(
                 goal.achieved ? Icons.emoji_events : Icons.flag_outlined,
                 size: 17,
-                color: goal.achieved ? Premium.ink : Premium.accent,
+                color: goal.achieved ? context.colors.onAccent : context.colors.accent,
               ),
             ),
             const SizedBox(width: 12),
@@ -848,13 +851,13 @@ class _GoalTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${goal.targetWeightKg.toStringAsFixed(1)} kg', style: Premium.heading(14)),
+                  Text('${goal.targetWeightKg.toStringAsFixed(1)} kg', style: Premium.heading(context, 14)),
                   const SizedBox(height: 2),
                   Text(
                     goal.achieved
                         ? 'Achieved ${DateFormat.yMMMd().format(goal.achievedAt!)}'
                         : '${remaining.toStringAsFixed(1)} kg to go',
-                    style: Premium.body(11.5, color: Premium.textDim),
+                    style: Premium.body(context, 11.5, color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -862,9 +865,9 @@ class _GoalTile extends StatelessWidget {
             InkWell(
               borderRadius: BorderRadius.circular(8),
               onTap: onDelete,
-              child: const Padding(
-                padding: EdgeInsets.all(6),
-                child: Icon(Icons.delete_outline, size: 18, color: Premium.textFaint),
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: Icon(Icons.delete_outline, size: 18, color: context.colors.textFaint),
               ),
             ),
           ],
@@ -911,25 +914,25 @@ class _LogRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
       decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
-        border: Border.all(color: Premium.border),
+        gradient: context.colors.cardGradient,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(Premium.radiusMd),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(DateFormat.MMMd().format(log.loggedAt), style: Premium.body(12.5, color: Premium.textDim, weight: FontWeight.w600)),
+          Text(DateFormat.MMMd().format(log.loggedAt), style: Premium.body(context, 12.5, color: context.colors.textSecondary, weight: FontWeight.w600)),
           Row(
             children: [
-              Text('${log.weight.toStringAsFixed(1)} kg', style: Premium.heading(14, weight: FontWeight.w700)),
+              Text('${log.weight.toStringAsFixed(1)} kg', style: Premium.heading(context, 14, weight: FontWeight.w700)),
               if (delta != null && delta != 0) ...[
                 const SizedBox(width: 8),
                 Text(
                   delta < 0 ? '↓${delta.abs().toStringAsFixed(1)}' : '↑${delta.toStringAsFixed(1)}',
-                  style: Premium.body(
+                  style: Premium.body(context, 
                     11,
                     weight: FontWeight.w700,
-                    color: delta < 0 ? Premium.good : _deltaUpColor,
+                    color: delta < 0 ? context.colors.success : _deltaUpColor,
                   ),
                 ),
               ],

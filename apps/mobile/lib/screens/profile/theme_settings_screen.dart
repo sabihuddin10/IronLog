@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/accent_combo.dart';
 import '../../core/app_spacing.dart';
-import '../../core/palettes.dart';
 import '../../core/theme_controller.dart';
+import 'custom_accent_picker_sheet.dart';
 
 class ThemeSettingsScreen extends StatelessWidget {
   const ThemeSettingsScreen({super.key});
@@ -60,12 +61,21 @@ class ThemeSettingsScreen extends StatelessWidget {
               spacing: AppSpacing.lg,
               runSpacing: AppSpacing.lg,
               children: [
-                for (final id in PaletteId.values)
-                  _PaletteSwatch(
-                    id: id,
-                    selected: controller.paletteId == id,
-                    onTap: () => context.read<ThemeController>().setPalette(id),
+                for (final combo in kAccentPresets)
+                  _AccentSwatch(
+                    label: combo.label,
+                    gradientColors: [combo.dark.accent, combo.dark.accent2],
+                    selected: controller.accentComboId == combo.id,
+                    onTap: () => context.read<ThemeController>().setAccentCombo(combo.id),
                   ),
+                _AccentSwatch(
+                  label: 'Custom',
+                  gradientColors: controller.customAccent != null
+                      ? [controller.customAccent!.accent, controller.customAccent!.accent2]
+                      : const [Colors.grey, Colors.blueGrey],
+                  selected: controller.accentComboId == kCustomAccentId,
+                  onTap: () => showCustomAccentPicker(context),
+                ),
               ],
             ),
           ),
@@ -75,10 +85,16 @@ class ThemeSettingsScreen extends StatelessWidget {
   }
 }
 
-class _PaletteSwatch extends StatelessWidget {
-  const _PaletteSwatch({required this.id, required this.selected, required this.onTap});
+class _AccentSwatch extends StatelessWidget {
+  const _AccentSwatch({
+    required this.label,
+    required this.gradientColors,
+    required this.selected,
+    required this.onTap,
+  });
 
-  final PaletteId id;
+  final String label;
+  final List<Color> gradientColors;
   final bool selected;
   final VoidCallback onTap;
 
@@ -92,13 +108,21 @@ class _PaletteSwatch extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: id.swatch,
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: gradientColors,
+                ),
+              ),
               child: selected ? const Icon(Icons.check, color: Colors.white) : null,
             ),
             const SizedBox(height: AppSpacing.xxs),
-            Text(id.label, style: Theme.of(context).textTheme.labelMedium),
+            Text(label, style: Theme.of(context).textTheme.labelMedium),
           ],
         ),
       ),

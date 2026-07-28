@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import 'age_calculator_screen.dart';
@@ -38,7 +39,7 @@ class ToolsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: CustomScrollView(
@@ -46,7 +47,7 @@ class ToolsScreen extends StatelessWidget {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
               sliver: SliverToBoxAdapter(
-                child: Text('Health Tools', style: Premium.heading(23)),
+                child: Text('Health Tools', style: Premium.heading(context, 23)),
               ),
             ),
             SliverPadding(
@@ -72,7 +73,7 @@ class ToolsScreen extends StatelessWidget {
                           Text(
                             tool.label,
                             textAlign: TextAlign.center,
-                            style: Premium.body(13, color: Premium.text, weight: FontWeight.w500),
+                            style: Premium.body(context, 13, color: context.colors.textPrimary, weight: FontWeight.w500),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../data/body_profile_store.dart';
@@ -194,7 +195,7 @@ class _PresetBuilderScreenState extends State<PresetBuilderScreen> {
     final durationLabel = h > 0 ? '${h}h ${m}m' : '${m}m ${syntheticDuration.inSeconds % 60}s';
 
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -207,9 +208,9 @@ class _PresetBuilderScreenState extends State<PresetBuilderScreen> {
                   child: Container(
                     width: 30,
                     height: 30,
-                    decoration: BoxDecoration(color: Premium.surface2, borderRadius: BorderRadius.circular(9)),
+                    decoration: BoxDecoration(color: context.colors.cardBackground, borderRadius: BorderRadius.circular(9)),
                     alignment: Alignment.center,
-                    child: const Icon(Icons.keyboard_arrow_down, color: Premium.textDim, size: 20),
+                    child: Icon(Icons.keyboard_arrow_down, color: context.colors.textSecondary, size: 20),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -222,15 +223,15 @@ class _PresetBuilderScreenState extends State<PresetBuilderScreen> {
                       contentPadding: EdgeInsets.zero,
                       hintText: 'Preset name',
                     ),
-                    style: Premium.heading(19),
+                    style: Premium.heading(context, 19),
                   ),
                 ),
                 const SizedBox(width: 4),
                 _saving
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Premium.accent),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
                       )
                     : PremiumGradientButton(label: 'Save preset', onTap: _save),
               ],

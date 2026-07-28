@@ -1,9 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../data/body_profile_store.dart';
 import '../../utils/health_formulas.dart';
+import 'premium_tool_widgets.dart' show PremiumBmiInline, PremiumCatList, PremiumCatRowData;
 
 enum _Mode { calories, pace, duration }
 
@@ -93,6 +95,12 @@ class _WalkCaloriePlannerScreenState extends State<WalkCaloriePlannerScreen> {
     });
   }
 
+  String _bmiRangeLabel(double low, double high) {
+    if (low == double.negativeInfinity) return '< $high';
+    if (high == double.infinity) return '$low +';
+    return '$low - $high';
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<BodyProfileStore>();
@@ -139,7 +147,7 @@ class _WalkCaloriePlannerScreenState extends State<WalkCaloriePlannerScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -151,7 +159,19 @@ class _WalkCaloriePlannerScreenState extends State<WalkCaloriePlannerScreen> {
             ),
             _Segmented3(mode: _mode, onChanged: (m) => setState(() => _mode = m)),
             _WeightRow(profile: profile),
-            _BmiInline(profile: profile),
+            PremiumBmiInline(profile: profile),
+            PremiumCatList(
+              rows: [
+                for (final c in HealthFormulas.bmiCategories)
+                  PremiumCatRowData(
+                    label: c.$1,
+                    value: _bmiRangeLabel(c.$2, c.$3),
+                    active: c.$1 == HealthFormulas.bmiCategoryLabel(
+                      HealthFormulas.bmi(profile.weightKg, profile.heightCm, profile.gender, profile.age, true).bmi,
+                    ),
+                  ),
+              ],
+            ),
             // Distance is a free input only in "calories" mode; in the other two
             // modes it's a derived output shown in the result banner instead.
             if (_mode == _Mode.calories)
@@ -209,7 +229,7 @@ class _WalkCaloriePlannerScreenState extends State<WalkCaloriePlannerScreen> {
               _FieldRow(
                 label: 'Duration',
                 input: _UnderlineInput(controller: _durationController, onChanged: (_) => setState(() {})),
-                trailing: Text('min', style: Premium.body(13, color: Premium.textFaint, weight: FontWeight.w500)),
+                trailing: Text('min', style: Premium.body(context, 13, color: context.colors.textFaint, weight: FontWeight.w500)),
               ),
             // Target calories is a free input in "pace" and "duration" modes;
             // in "calories" mode it's the value being solved for.
@@ -217,11 +237,11 @@ class _WalkCaloriePlannerScreenState extends State<WalkCaloriePlannerScreen> {
               _FieldRow(
                 label: 'Target',
                 input: _UnderlineInput(controller: _caloriesController, onChanged: (_) => setState(() {})),
-                trailing: Text('kcal', style: Premium.body(13, color: Premium.textFaint, weight: FontWeight.w500)),
+                trailing: Text('kcal', style: Premium.body(context, 13, color: context.colors.textFaint, weight: FontWeight.w500)),
               ),
             _ResultBanner(main: resultMain, sub: resultSub),
             const SizedBox(height: 8),
-            Text('Calories vs. pace', style: Premium.body(12, color: Premium.textDim, weight: FontWeight.w600)),
+            Text('Calories vs. pace', style: Premium.body(context, 12, color: context.colors.textSecondary, weight: FontWeight.w600)),
             const SizedBox(height: 12),
             SizedBox(
               height: 220,
@@ -280,7 +300,7 @@ class _CaloriePaceCurve extends StatelessWidget {
 
     final currentKmh = HealthFormulas.metersPerMinToKmh(currentSpeedMetersPerMin).clamp(_minKmh, _maxKmh);
     final currentKcal = _kcalPerHourAt(currentKmh);
-    final axisLabelStyle = Premium.body(9.5, color: Premium.textFaint, weight: FontWeight.w600);
+    final axisLabelStyle = Premium.body(context, 9.5, color: context.colors.textFaint, weight: FontWeight.w600);
 
     return LineChart(
       LineChartData(
@@ -313,20 +333,45 @@ class _CaloriePaceCurve extends StatelessWidget {
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            gradient: Premium.accentGradient,
+            gradient: context.colors.accentGradient,
             barWidth: 3,
             dotData: const FlDotData(show: false),
           ),
         ],
         extraLinesData: ExtraLinesData(
           verticalLines: [
-            VerticalLine(x: currentKmh, color: Premium.liveRed.withValues(alpha: 0.55), strokeWidth: 1.5, dashArray: [4, 4]),
+            VerticalLine(x: currentKmh, color: context.colors.danger.withValues(alpha: 0.55), strokeWidth: 1.5, dashArray: [4, 4]),
           ],
+        ),
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (touchedSpot) => context.colors.cardBackground,
+            tooltipRoundedRadius: 12,
+            tooltipBorder: BorderSide(color: context.colors.accent.withValues(alpha: 0.3), width: 1),
+            tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            tooltipMargin: 12,
+            fitInsideHorizontally: true,
+            fitInsideVertically: true,
+            getTooltipItems: (touchedSpots) => touchedSpots
+                .map(
+                  (spot) => LineTooltipItem(
+                    '${spot.y.round()} kcal',
+                    TextStyle(color: context.colors.accent, fontWeight: FontWeight.w700, fontSize: 13),
+                    children: [
+                      TextSpan(
+                        text: '\nat ${spot.x.toStringAsFixed(1)} km/h',
+                        style: TextStyle(color: context.colors.textSecondary, fontWeight: FontWeight.w500, fontSize: 11),
+                      ),
+                    ],
+                  ),
+                )
+                .toList(),
+          ),
         ),
         showingTooltipIndicators: [
           ShowingTooltipIndicators([
             LineBarSpot(
-              LineChartBarData(spots: spots, color: Premium.accent),
+              LineChartBarData(spots: spots, color: context.colors.accent),
               0,
               FlSpot(currentKmh, currentKcal),
             ),
@@ -355,15 +400,15 @@ class _ScHeader extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Premium.surface2,
-                border: Border.all(color: Premium.border),
+                color: context.colors.cardBackground,
+                border: Border.all(color: context.colors.border),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back, size: 16, color: Premium.textDim),
+              child: Icon(Icons.arrow_back, size: 16, color: context.colors.textSecondary),
             ),
           ),
           const SizedBox(width: 14),
-          Text(title, style: Premium.heading(19)),
+          Text(title, style: Premium.heading(context, 19)),
         ],
       ),
     );
@@ -379,7 +424,7 @@ class _ScDesc extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 22),
-      child: Text(text, style: Premium.body(12.5, color: Premium.textDim).copyWith(height: 1.6)),
+      child: Text(text, style: Premium.body(context, 12.5, color: context.colors.textSecondary).copyWith(height: 1.6)),
     );
   }
 }
@@ -398,7 +443,7 @@ class _FieldRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(width: 64, child: Text(label, style: Premium.body(13.5, color: Premium.text, weight: FontWeight.w600))),
+          SizedBox(width: 64, child: Text(label, style: Premium.body(context, 13.5, color: context.colors.textPrimary, weight: FontWeight.w600))),
           const SizedBox(width: 14),
           Expanded(child: input),
           if (trailing != null) ...[const SizedBox(width: 10), trailing!],
@@ -420,15 +465,15 @@ class _UnderlineInput extends StatelessWidget {
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       onChanged: onChanged,
-      style: Premium.body(16, color: Premium.text, weight: FontWeight.w600),
-      cursorColor: Premium.accent,
-      decoration: const InputDecoration(
+      style: Premium.body(context, 16, color: context.colors.textPrimary, weight: FontWeight.w600),
+      cursorColor: context.colors.accent,
+      decoration: InputDecoration(
         isDense: true,
         filled: false,
         contentPadding: EdgeInsets.only(bottom: 8, top: 4),
-        border: UnderlineInputBorder(borderSide: BorderSide(color: Premium.borderStrong, width: 1.5)),
-        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Premium.borderStrong, width: 1.5)),
-        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Premium.accent, width: 1.5)),
+        border: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.borderStrong, width: 1.5)),
+        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.borderStrong, width: 1.5)),
+        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.accent, width: 1.5)),
       ),
     );
   }
@@ -449,13 +494,13 @@ class _UnitPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         decoration: BoxDecoration(
-          gradient: active ? Premium.accentGradient : null,
-          color: active ? null : Premium.surface3,
-          border: active ? null : Border.all(color: Premium.border),
+          gradient: active ? context.colors.accentGradient : null,
+          color: active ? null : context.colors.surfaceHigh,
+          border: active ? null : Border.all(color: context.colors.border),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: active ? Premium.accentGlowShadow(blur: 12, spread: -4) : null,
+          boxShadow: active ? context.colors.accentGlowShadow(blur: 12, spread: -4) : null,
         ),
-        child: Text(label, style: Premium.body(10.5, color: active ? Premium.ink : Premium.textFaint, weight: FontWeight.w700)),
+        child: Text(label, style: Premium.body(context, 10.5, color: active ? context.colors.onAccent : context.colors.textFaint, weight: FontWeight.w700)),
       ),
     );
   }
@@ -478,7 +523,7 @@ class _Segmented3 extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 22),
       padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(color: Premium.surface3, borderRadius: BorderRadius.circular(13)),
+      decoration: BoxDecoration(color: context.colors.surfaceHigh, borderRadius: BorderRadius.circular(13)),
       child: Row(
         children: [
           for (final e in _entries)
@@ -489,62 +534,17 @@ class _Segmented3 extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    gradient: mode == e.$1 ? Premium.accentGradient : null,
+                    gradient: mode == e.$1 ? context.colors.accentGradient : null,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     e.$2,
                     textAlign: TextAlign.center,
-                    style: Premium.body(12, color: mode == e.$1 ? Premium.ink : Premium.textDim, weight: FontWeight.w700),
+                    style: Premium.body(context, 12, color: mode == e.$1 ? context.colors.onAccent : context.colors.textSecondary, weight: FontWeight.w700),
                   ),
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Left-accent-2 bordered inline BMI summary (`.bmi-inline`) — same
-/// [HealthFormulas.bmi] math the BMI calculator uses.
-class _BmiInline extends StatelessWidget {
-  final BodyProfileStore profile;
-  const _BmiInline({required this.profile});
-
-  @override
-  Widget build(BuildContext context) {
-    final result = HealthFormulas.bmi(profile.weightKg, profile.heightCm, profile.gender, profile.age, true);
-    final category = HealthFormulas.bmiCategoryLabel(result.bmi);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 22),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-      decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
-        borderRadius: BorderRadius.circular(14),
-        border: Border(
-          top: const BorderSide(color: Premium.border),
-          right: const BorderSide(color: Premium.border),
-          bottom: const BorderSide(color: Premium.border),
-          left: const BorderSide(color: Premium.accent2, width: 3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('BMI ${result.bmi.toStringAsFixed(1)} · $category', style: Premium.heading(14.5, weight: FontWeight.w700)),
-              Text('${profile.weightKg.toStringAsFixed(1)} kg', style: Premium.body(13, color: Premium.textDim, weight: FontWeight.w600)),
-            ],
-          ),
-          const SizedBox(height: 7),
-          Text(
-            HealthFormulas.bmiAdvice(result.bmi),
-            style: Premium.body(11.5, color: Premium.textDim, weight: FontWeight.w500).copyWith(height: 1.55),
-          ),
         ],
       ),
     );
@@ -563,16 +563,16 @@ class _ResultBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(vertical: 17, horizontal: 19),
       decoration: BoxDecoration(
-        gradient: Premium.accentGradient,
+        gradient: context.colors.accentGradient,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: Premium.accentGlowShadow(blur: 26, spread: -12),
+        boxShadow: context.colors.accentGlowShadow(blur: 26, spread: -12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(main, style: Premium.heading(20, weight: FontWeight.w700, color: Premium.ink)),
+          Text(main, style: Premium.heading(context, 20, weight: FontWeight.w700, color: context.colors.onAccent)),
           const SizedBox(height: 4),
-          Text(sub, style: Premium.body(11.5, color: Premium.ink.withValues(alpha: 0.75), weight: FontWeight.w600)),
+          Text(sub, style: Premium.body(context, 11.5, color: context.colors.onAccent.withValues(alpha: 0.75), weight: FontWeight.w600)),
         ],
       ),
     );

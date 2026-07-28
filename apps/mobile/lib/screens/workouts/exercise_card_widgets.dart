@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../core/responsive.dart';
@@ -90,18 +91,18 @@ class StatsRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Stat(label: durationLabel, value: duration)),
-          _divider(),
+          _divider(context),
           Expanded(child: Stat(label: 'Volume', value: '${volume.toStringAsFixed(0)} kg')),
-          _divider(),
+          _divider(context),
           Expanded(child: Stat(label: 'Sets', value: '$sets')),
-          _divider(),
+          _divider(context),
           Expanded(child: Stat(label: caloriesLabel, value: calories.toStringAsFixed(0))),
         ],
       ),
     );
   }
 
-  Widget _divider() => Container(width: 1, height: 22, color: Premium.border);
+  Widget _divider(BuildContext context) => Container(width: 1, height: 22, color: context.colors.border);
 }
 
 class Stat extends StatelessWidget {
@@ -116,12 +117,12 @@ class Stat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: Premium.heading(16),
+          style: Premium.heading(context, 16),
         ),
         const SizedBox(height: 4),
         Text(
           label.toUpperCase(),
-          style: Premium.body(9, weight: FontWeight.w600, color: Premium.textFaint).copyWith(letterSpacing: 0.5),
+          style: Premium.body(context, 9, weight: FontWeight.w600, color: context.colors.textFaint).copyWith(letterSpacing: 0.5),
         ),
       ],
     );
@@ -158,11 +159,11 @@ class ExerciseCard extends StatelessWidget {
                   child: Text(
                     exercise.name,
                     overflow: TextOverflow.ellipsis,
-                    style: Premium.heading(14.5),
+                    style: Premium.heading(context, 14.5),
                   ),
                 ),
                 PopupMenuButton<void>(
-                  icon: const Icon(Icons.more_vert, color: Premium.textDim),
+                  icon: Icon(Icons.more_vert, color: context.colors.textSecondary),
                   itemBuilder: (context) => [
                     PopupMenuItem(
                       onTap: onRemove,
@@ -170,7 +171,7 @@ class ExerciseCard extends StatelessWidget {
                         children: [
                           const Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF6B5C)),
                           const SizedBox(width: 8),
-                          Text('Remove exercise', style: Premium.body(14, color: const Color(0xFFFF6B5C))),
+                          Text('Remove exercise', style: Premium.body(context, 14, color: const Color(0xFFFF6B5C))),
                         ],
                       ),
                     ),
@@ -180,7 +181,7 @@ class ExerciseCard extends StatelessWidget {
             ),
             if (exercise.tip != null) ...[
               const SizedBox(height: 6),
-              Text(exercise.tip!, style: Premium.body(12, color: Premium.textDim)),
+              Text(exercise.tip!, style: Premium.body(context, 12, color: context.colors.textSecondary)),
             ],
             const SizedBox(height: 6),
             InkWell(
@@ -189,23 +190,23 @@ class ExerciseCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Premium.surface3,
+                  color: context.colors.surfaceHigh,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.timer_outlined, size: 14, color: Premium.textDim),
+                    Icon(Icons.timer_outlined, size: 14, color: context.colors.textSecondary),
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
                         'Rest btw each set: ${exercise.restTimer.inMinutes}min ${exercise.restTimer.inSeconds % 60}s',
                         overflow: TextOverflow.ellipsis,
-                        style: Premium.body(11, weight: FontWeight.w500, color: Premium.textDim),
+                        style: Premium.body(context, 11, weight: FontWeight.w500, color: context.colors.textSecondary),
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.edit, size: 12, color: Premium.textDim),
+                    Icon(Icons.edit, size: 12, color: context.colors.textSecondary),
                   ],
                 ),
               ),
@@ -242,14 +243,14 @@ class ExerciseCard extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Premium.accent.withValues(alpha: 0.3), style: BorderStyle.solid),
+                  border: Border.all(color: context.colors.accent.withValues(alpha: 0.3), style: BorderStyle.solid),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.add, size: 16, color: Premium.accent),
+                    Icon(Icons.add, size: 16, color: context.colors.accent),
                     const SizedBox(width: 6),
-                    Text('Add set', style: Premium.body(13, weight: FontWeight.w600, color: Premium.accent)),
+                    Text('Add set', style: Premium.body(context, 13, weight: FontWeight.w600, color: context.colors.accent)),
                   ],
                 ),
               ),
@@ -267,7 +268,7 @@ class SetTableHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Premium.body(9.5, weight: FontWeight.w600, color: Premium.textFaint).copyWith(letterSpacing: 0.6);
+    final style = Premium.body(context, 9.5, weight: FontWeight.w600, color: context.colors.textFaint).copyWith(letterSpacing: 0.6);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -328,7 +329,7 @@ class SetRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: set.completed ? Premium.good.withValues(alpha: 0.12) : null,
+        color: set.completed ? context.colors.success.withValues(alpha: 0.12) : null,
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.symmetric(vertical: 2),
@@ -347,13 +348,13 @@ class SetRow extends StatelessWidget {
                   height: context.scale(24),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Premium.surface3,
-                    border: Border.all(color: Premium.borderStrong),
+                    color: context.colors.surfaceHigh,
+                    border: Border.all(color: context.colors.borderStrong),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     setLabel(set.type, normalIndex),
-                    style: Premium.body(11, weight: FontWeight.w600, color: setLabelColor(context, set.type)),
+                    style: Premium.body(context, 11, weight: FontWeight.w600, color: setLabelColor(context, set.type)),
                   ),
                 ),
               ),
@@ -367,13 +368,13 @@ class SetRow extends StatelessWidget {
                 Text(
                   set.previous,
                   textAlign: TextAlign.center,
-                  style: Premium.body(12.5, color: Premium.textDim),
+                  style: Premium.body(context, 12.5, color: context.colors.textSecondary),
                 ),
                 if (set.completed)
                   Text(
                     '${kcal.toStringAsFixed(1)} kcal',
                     textAlign: TextAlign.center,
-                    style: Premium.body(10, color: Premium.textFaint),
+                    style: Premium.body(context, 10, color: context.colors.textFaint),
                   ),
               ],
             ),
@@ -400,14 +401,14 @@ class SetRow extends StatelessWidget {
                   ? Container(
                       width: context.scale(22),
                       height: context.scale(22),
-                      decoration: const BoxDecoration(gradient: Premium.accentGradient, shape: BoxShape.circle),
+                      decoration: BoxDecoration(gradient: context.colors.accentGradient, shape: BoxShape.circle),
                       alignment: Alignment.center,
-                      child: Icon(Icons.check, size: context.scale(14), color: Premium.ink),
+                      child: Icon(Icons.check, size: context.scale(14), color: context.colors.onAccent),
                     )
                   : Icon(
                       Icons.circle_outlined,
                       size: context.scale(20),
-                      color: Premium.textFaint,
+                      color: context.colors.textFaint,
                     ),
             ),
           ),
@@ -421,7 +422,7 @@ class SetRow extends StatelessWidget {
               icon: Icon(
                 Icons.close,
                 size: context.scale(16),
-                color: Premium.textFaint,
+                color: context.colors.textFaint,
               ),
             ),
           ),
@@ -444,19 +445,19 @@ class SetField extends StatelessWidget {
         controller: controller,
         textAlign: TextAlign.center,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        style: Premium.body(12.5, weight: FontWeight.w600, color: Premium.text),
+        style: Premium.body(context, 12.5, weight: FontWeight.w600, color: context.colors.textPrimary),
         decoration: InputDecoration(
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(vertical: 7),
           filled: true,
-          fillColor: Premium.surface3,
+          fillColor: context.colors.surfaceHigh,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(9),
-            borderSide: const BorderSide(color: Premium.border),
+            borderSide: BorderSide(color: context.colors.border),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(9),
-            borderSide: Border.all(color: Premium.accent.withValues(alpha: 0.5)).top,
+            borderSide: Border.all(color: context.colors.accent.withValues(alpha: 0.5)).top,
           ),
         ),
       ),
