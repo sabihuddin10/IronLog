@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../data/body_profile_store.dart';
@@ -200,7 +201,7 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Premium.surface2,
+        backgroundColor: context.colors.cardBackground,
         title: const Text('Discard this session?'),
         content: const Text('Your steps, distance and time so far will be lost.'),
         actions: [
@@ -236,7 +237,7 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
   /// "Start" CTA.
   Widget _buildPreStart(BuildContext context) {
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -255,9 +256,9 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
               future: _historyFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40),
-                    child: Center(child: CircularProgressIndicator(color: Premium.accent)),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Center(child: CircularProgressIndicator(color: context.colors.accent)),
                   );
                 }
                 final sessions = snapshot.data ?? const <WalkSession>[];
@@ -285,11 +286,11 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Track steps, distance and pace', style: Premium.heading(14.5, weight: FontWeight.w600)),
+                      Text('Track steps, distance and pace', style: Premium.heading(context, 14.5, weight: FontWeight.w600)),
                       const SizedBox(height: 3),
                       Text(
                         "Uses your phone's motion sensor to detect steps — no GPS required.",
-                        style: Premium.body(12, color: Premium.textDim),
+                        style: Premium.body(context, 12, color: context.colors.textSecondary),
                       ),
                     ],
                   ),
@@ -320,7 +321,7 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
         _confirmDiscard();
       },
       child: Scaffold(
-        backgroundColor: Premium.bg,
+        backgroundColor: context.colors.background,
         body: SafeArea(
           bottom: false,
           child: ListView(
@@ -336,14 +337,14 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
               Text(
                 _durationLabel,
                 textAlign: TextAlign.center,
-                style: Premium.heading(50, weight: FontWeight.w600).copyWith(height: 1.1),
+                style: Premium.heading(context, 50, weight: FontWeight.w600).copyWith(height: 1.1),
               ),
               if (_paused) ...[
                 const SizedBox(height: 6),
                 Center(
                   child: Text(
                     'PAUSED',
-                    style: Premium.body(11, color: Premium.liveRed, weight: FontWeight.w700),
+                    style: Premium.body(context, 11, color: context.colors.danger, weight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -366,7 +367,7 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
   /// elsewhere in the redesign.
   Widget _buildUnavailable(BuildContext context) {
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -394,7 +395,7 @@ class _WrHeader extends StatelessWidget {
       children: [
         _ChevButton(icon: Icons.keyboard_arrow_down, onTap: onBack),
         Expanded(
-          child: Center(child: Text('Walk/Run', style: Premium.heading(19))),
+          child: Center(child: Text('Walk/Run', style: Premium.heading(context, 19))),
         ),
         _ChevButton(icon: Icons.list_alt, onTap: onHistory, tooltip: 'All records'),
       ],
@@ -424,23 +425,23 @@ class _WkHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: 14),
       margin: const EdgeInsets.only(bottom: 20),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Premium.border)),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: context.colors.border)),
       ),
       child: Row(
         children: [
           _ChevButton(icon: Icons.keyboard_arrow_down, onTap: onBack),
           const SizedBox(width: 10),
-          Expanded(child: Text('Walk / Run', style: Premium.heading(19))),
+          Expanded(child: Text('Walk / Run', style: Premium.heading(context, 19))),
           _ChevButton(icon: paused ? Icons.play_arrow : Icons.pause, onTap: onTogglePause),
           const SizedBox(width: 8),
           saving
-              ? const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6),
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Premium.accent),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
                   ),
                 )
               : PremiumGradientButton(label: 'Finish', onTap: onFinish),
@@ -470,10 +471,10 @@ class _ChevButton extends StatelessWidget {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: Premium.surface2,
+            color: context.colors.cardBackground,
             borderRadius: BorderRadius.circular(9),
           ),
-          child: Icon(icon, size: 16, color: Premium.textDim),
+          child: Icon(icon, size: 16, color: context.colors.textSecondary),
         ),
       ),
     );
@@ -493,9 +494,9 @@ class _RouteMapCard extends StatelessWidget {
       height: 150,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
+        gradient: context.colors.cardGradient,
         borderRadius: BorderRadius.circular(Premium.radiusXxl),
-        border: Border.all(color: Premium.border),
+        border: Border.all(color: context.colors.border),
         boxShadow: Premium.cardShadow,
       ),
       child: Stack(
@@ -509,28 +510,32 @@ class _RouteMapCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [Premium.accent2.withValues(alpha: 0.14), Premium.accent2.withValues(alpha: 0)],
+                  colors: [context.colors.accent2.withValues(alpha: 0.14), context.colors.accent2.withValues(alpha: 0)],
                 ),
               ),
             ),
           ),
-          Positioned.fill(child: CustomPaint(painter: _RoutePainter())),
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _RoutePainter(accent: context.colors.accent, accent2: context.colors.accent2),
+            ),
+          ),
           Positioned(
             top: 12,
             left: 12,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: Premium.ink.withValues(alpha: 0.7),
+                color: context.colors.onAccent.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(9),
-                border: Border.all(color: Premium.borderStrong),
+                border: Border.all(color: context.colors.borderStrong),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.directions_walk, size: 12, color: Premium.textDim),
+                  Icon(Icons.directions_walk, size: 12, color: context.colors.textSecondary),
                   const SizedBox(width: 6),
-                  Text('Step-based tracking', style: Premium.body(10.5, color: Premium.textDim, weight: FontWeight.w600)),
+                  Text('Step-based tracking', style: Premium.body(context, 10.5, color: context.colors.textSecondary, weight: FontWeight.w600)),
                 ],
               ),
             ),
@@ -544,6 +549,11 @@ class _RouteMapCard extends StatelessWidget {
 /// Paints a stylized, dashed, gradient route line approximating the
 /// mockup's SVG `<path>` — purely decorative, no data binding.
 class _RoutePainter extends CustomPainter {
+  final Color accent;
+  final Color accent2;
+
+  _RoutePainter({required this.accent, required this.accent2});
+
   @override
   void paint(Canvas canvas, Size size) {
     final sx = size.width / 340;
@@ -560,7 +570,7 @@ class _RoutePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.5
       ..strokeCap = StrokeCap.round
-      ..shader = const LinearGradient(colors: [Premium.accent2, Premium.accent]).createShader(Offset.zero & size);
+      ..shader = LinearGradient(colors: [accent2, accent]).createShader(Offset.zero & size);
 
     const dashWidth = 6.0;
     const dashGap = 9.0;
@@ -573,12 +583,13 @@ class _RoutePainter extends CustomPainter {
       }
     }
 
-    canvas.drawCircle(p(20, 150), 4, Paint()..color = Premium.accent2);
-    canvas.drawCircle(p(320, 30), 5, Paint()..color = Premium.accent);
+    canvas.drawCircle(p(20, 150), 4, Paint()..color = accent2);
+    canvas.drawCircle(p(320, 30), 5, Paint()..color = accent);
   }
 
   @override
-  bool shouldRepaint(covariant _RoutePainter oldDelegate) => false;
+  bool shouldRepaint(covariant _RoutePainter oldDelegate) =>
+      oldDelegate.accent != accent || oldDelegate.accent2 != accent2;
 }
 
 /// `.wr-hero` + `.wr-grid` — repurposed to summarize the most recently
@@ -611,23 +622,23 @@ class _LastSessionSummary extends StatelessWidget {
     if (s == null) {
       return Column(
         children: [
-          Text('READY WHEN YOU ARE', style: Premium.body(11, color: Premium.textFaint, weight: FontWeight.w700)),
+          Text('READY WHEN YOU ARE', style: Premium.body(context, 11, color: context.colors.textFaint, weight: FontWeight.w700)),
           const SizedBox(height: 8),
-          Text('No sessions logged yet', style: Premium.heading(18)),
+          Text('No sessions logged yet', style: Premium.heading(context, 18)),
         ],
       );
     }
 
     return Column(
       children: [
-        Text('LAST SESSION · DISTANCE', style: Premium.body(11, color: Premium.textFaint, weight: FontWeight.w700)),
+        Text('LAST SESSION · DISTANCE', style: Premium.body(context, 11, color: context.colors.textFaint, weight: FontWeight.w700)),
         const SizedBox(height: 2),
         RichText(
           text: TextSpan(
-            style: Premium.heading(46, color: Premium.accent),
+            style: Premium.heading(context, 46, color: context.colors.accent),
             children: [
               TextSpan(text: s.distanceKm.toStringAsFixed(2)),
-              TextSpan(text: ' km', style: Premium.body(15, color: Premium.textDim, weight: FontWeight.w600)),
+              TextSpan(text: ' km', style: Premium.body(context, 15, color: context.colors.textSecondary, weight: FontWeight.w600)),
             ],
           ),
         ),
@@ -658,17 +669,17 @@ class _WrStat extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 8),
       decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
-        border: Border.all(color: Premium.border),
+        gradient: context.colors.cardGradient,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
         children: [
-          Text(value, style: Premium.heading(16, weight: FontWeight.w600)),
+          Text(value, style: Premium.heading(context, 16, weight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(
             label.toUpperCase(),
-            style: Premium.body(9, color: Premium.textFaint, weight: FontWeight.w600).copyWith(letterSpacing: 0.5),
+            style: Premium.body(context, 9, color: context.colors.textFaint, weight: FontWeight.w600).copyWith(letterSpacing: 0.5),
           ),
         ],
       ),
@@ -697,16 +708,16 @@ class _StartRunButton extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: Premium.accentGradient,
+            gradient: context.colors.accentGradient,
             borderRadius: BorderRadius.circular(18),
-            boxShadow: Premium.accentGlowShadow(blur: 26, spread: -10),
+            boxShadow: context.colors.accentGlowShadow(blur: 26, spread: -10),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.play_arrow, size: 18, color: Premium.ink),
+              Icon(Icons.play_arrow, size: 18, color: context.colors.onAccent),
               const SizedBox(width: 8),
-              Text('Start Walk/Run', style: Premium.heading(15, weight: FontWeight.w700, color: Premium.ink)),
+              Text('Start Walk/Run', style: Premium.heading(context, 15, weight: FontWeight.w700, color: context.colors.onAccent)),
             ],
           ),
         ),
@@ -738,18 +749,18 @@ class _StatsStrip extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: _StripStat(value: steps, label: 'Steps')),
-          _divider(),
+          _divider(context),
           Expanded(child: _StripStat(value: distance, label: 'Distance')),
-          _divider(),
+          _divider(context),
           Expanded(child: _StripStat(value: speed, label: 'Speed')),
-          _divider(),
+          _divider(context),
           Expanded(child: _StripStat(value: calories, label: 'Calories')),
         ],
       ),
     );
   }
 
-  Widget _divider() => Container(width: 1, height: 28, color: Premium.border);
+  Widget _divider(BuildContext context) => Container(width: 1, height: 28, color: context.colors.border);
 }
 
 class _StripStat extends StatelessWidget {
@@ -763,11 +774,11 @@ class _StripStat extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(value, style: Premium.heading(16, weight: FontWeight.w600)),
+        Text(value, style: Premium.heading(context, 16, weight: FontWeight.w600)),
         const SizedBox(height: 4),
         Text(
           label.toUpperCase(),
-          style: Premium.body(9, color: Premium.textFaint, weight: FontWeight.w600).copyWith(letterSpacing: 0.5),
+          style: Premium.body(context, 9, color: context.colors.textFaint, weight: FontWeight.w600).copyWith(letterSpacing: 0.5),
         ),
       ],
     );
@@ -790,17 +801,17 @@ class _UnavailableMessage extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [Premium.accentDim, Premium.accent.withValues(alpha: 0.05)]),
+            gradient: LinearGradient(colors: [context.colors.accentDim, context.colors.accent.withValues(alpha: 0.05)]),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Premium.accent.withValues(alpha: 0.18)),
+            border: Border.all(color: context.colors.accent.withValues(alpha: 0.18)),
           ),
-          child: const Icon(Icons.sensors_off, size: 30, color: Premium.accent),
+          child: Icon(Icons.sensors_off, size: 30, color: context.colors.accent),
         ),
         const SizedBox(height: 18),
         Text(
           'Step sensor unavailable on this device.',
           textAlign: TextAlign.center,
-          style: Premium.heading(15, weight: FontWeight.w600),
+          style: Premium.heading(context, 15, weight: FontWeight.w600),
         ),
         const SizedBox(height: 22),
         Material(
@@ -812,11 +823,11 @@ class _UnavailableMessage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
               decoration: BoxDecoration(
-                color: Premium.surface2,
-                border: Border.all(color: Premium.border),
+                color: context.colors.cardBackground,
+                border: Border.all(color: context.colors.border),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Text('Go back', style: Premium.body(13, color: Premium.text, weight: FontWeight.w600)),
+              child: Text('Go back', style: Premium.body(context, 13, color: context.colors.textPrimary, weight: FontWeight.w600)),
             ),
           ),
         ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../data/body_profile_store.dart';
 import '../../utils/health_formulas.dart';
+import 'premium_tool_widgets.dart' show PremiumBmiInline;
 
 class NutrientCalculatorScreen extends StatelessWidget {
   const NutrientCalculatorScreen({super.key});
@@ -20,7 +22,7 @@ class NutrientCalculatorScreen extends StatelessWidget {
     final fat = HealthFormulas.fatRangeGrams(calories);
 
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -33,7 +35,7 @@ class NutrientCalculatorScreen extends StatelessWidget {
             _AgeGenderField(profile: profile),
             _WeightRow(profile: profile),
             _HeightRow(profile: profile),
-            _BmiInline(profile: profile),
+            PremiumBmiInline(profile: profile),
             _SelectRow(
               label: 'Activity',
               child: _SelectBox<ActivityLevel>(
@@ -105,15 +107,15 @@ class _ScHeader extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Premium.surface2,
-                border: Border.all(color: Premium.border),
+                color: context.colors.cardBackground,
+                border: Border.all(color: context.colors.border),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back, size: 16, color: Premium.textDim),
+              child: Icon(Icons.arrow_back, size: 16, color: context.colors.textSecondary),
             ),
           ),
           const SizedBox(width: 14),
-          Text(title, style: Premium.heading(19)),
+          Text(title, style: Premium.heading(context, 19)),
         ],
       ),
     );
@@ -129,7 +131,7 @@ class _ScDesc extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 22),
-      child: Text(text, style: Premium.body(12.5, color: Premium.textDim).copyWith(height: 1.6)),
+      child: Text(text, style: Premium.body(context, 12.5, color: context.colors.textSecondary).copyWith(height: 1.6)),
     );
   }
 }
@@ -148,7 +150,7 @@ class _FieldRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(width: 64, child: Text(label, style: Premium.body(13.5, color: Premium.text, weight: FontWeight.w600))),
+          SizedBox(width: 64, child: Text(label, style: Premium.body(context, 13.5, color: context.colors.textPrimary, weight: FontWeight.w600))),
           const SizedBox(width: 14),
           Expanded(child: input),
           if (trailing != null) ...[const SizedBox(width: 10), trailing!],
@@ -171,7 +173,7 @@ class _SelectRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: Premium.body(13.5, color: Premium.text, weight: FontWeight.w600)),
+          Text(label, style: Premium.body(context, 13.5, color: context.colors.textPrimary, weight: FontWeight.w600)),
           const SizedBox(width: 12),
           Flexible(child: child),
         ],
@@ -192,15 +194,15 @@ class _UnderlineInput extends StatelessWidget {
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       onChanged: onChanged,
-      style: Premium.body(16, color: Premium.text, weight: FontWeight.w600),
-      cursorColor: Premium.accent,
-      decoration: const InputDecoration(
+      style: Premium.body(context, 16, color: context.colors.textPrimary, weight: FontWeight.w600),
+      cursorColor: context.colors.accent,
+      decoration: InputDecoration(
         isDense: true,
         filled: false,
         contentPadding: EdgeInsets.only(bottom: 8, top: 4),
-        border: UnderlineInputBorder(borderSide: BorderSide(color: Premium.borderStrong, width: 1.5)),
-        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Premium.borderStrong, width: 1.5)),
-        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Premium.accent, width: 1.5)),
+        border: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.borderStrong, width: 1.5)),
+        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.borderStrong, width: 1.5)),
+        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.accent, width: 1.5)),
       ),
     );
   }
@@ -223,12 +225,12 @@ class _PillCircle extends StatelessWidget {
         height: 32,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: active ? Premium.accentGradient : null,
-          color: active ? null : Premium.surface3,
-          border: active ? null : Border.all(color: Premium.border),
-          boxShadow: active ? Premium.accentGlowShadow(blur: 12, spread: -4) : null,
+          gradient: active ? context.colors.accentGradient : null,
+          color: active ? null : context.colors.surfaceHigh,
+          border: active ? null : Border.all(color: context.colors.border),
+          boxShadow: active ? context.colors.accentGlowShadow(blur: 12, spread: -4) : null,
         ),
-        child: Icon(icon, size: 15, color: active ? Premium.ink : Premium.textFaint),
+        child: Icon(icon, size: 15, color: active ? context.colors.onAccent : context.colors.textFaint),
       ),
     );
   }
@@ -267,13 +269,13 @@ class _UnitPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         decoration: BoxDecoration(
-          gradient: active ? Premium.accentGradient : null,
-          color: active ? null : Premium.surface3,
-          border: active ? null : Border.all(color: Premium.border),
+          gradient: active ? context.colors.accentGradient : null,
+          color: active ? null : context.colors.surfaceHigh,
+          border: active ? null : Border.all(color: context.colors.border),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: active ? Premium.accentGlowShadow(blur: 12, spread: -4) : null,
+          boxShadow: active ? context.colors.accentGlowShadow(blur: 12, spread: -4) : null,
         ),
-        child: Text(label, style: Premium.body(10.5, color: active ? Premium.ink : Premium.textFaint, weight: FontWeight.w700)),
+        child: Text(label, style: Premium.body(context, 10.5, color: active ? context.colors.onAccent : context.colors.textFaint, weight: FontWeight.w700)),
       ),
     );
   }
@@ -302,8 +304,8 @@ class _SelectBox<T> extends StatelessWidget {
       constraints: BoxConstraints(maxWidth: maxWidth),
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
       decoration: BoxDecoration(
-        color: Premium.surface2,
-        border: Border.all(color: Premium.border),
+        color: context.colors.cardBackground,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(11),
       ),
       child: DropdownButtonHideUnderline(
@@ -311,8 +313,8 @@ class _SelectBox<T> extends StatelessWidget {
           value: value,
           isDense: true,
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: Premium.textFaint),
-          dropdownColor: Premium.surface2,
+          icon: Icon(Icons.keyboard_arrow_down, size: 16, color: context.colors.textFaint),
+          dropdownColor: context.colors.cardBackground,
           selectedItemBuilder: (context) => items
               .map(
                 (it) => Align(
@@ -320,13 +322,13 @@ class _SelectBox<T> extends StatelessWidget {
                   child: Text(
                     label(it),
                     overflow: TextOverflow.ellipsis,
-                    style: Premium.body(12.5, color: Premium.textDim, weight: FontWeight.w500),
+                    style: Premium.body(context, 12.5, color: context.colors.textSecondary, weight: FontWeight.w500),
                   ),
                 ),
               )
               .toList(),
           items: items
-              .map((it) => DropdownMenuItem(value: it, child: Text(label(it), style: Premium.body(13, color: Premium.text))))
+              .map((it) => DropdownMenuItem(value: it, child: Text(label(it), style: Premium.body(context, 13, color: context.colors.textPrimary))))
               .toList(),
           onChanged: onChanged,
         ),
@@ -335,51 +337,6 @@ class _SelectBox<T> extends StatelessWidget {
   }
 }
 
-/// Compact inline BMI summary (`.bmi-inline`) — same [HealthFormulas.bmi]
-/// math the BMI calculator uses, just restyled for inline display within
-/// other calculator forms.
-class _BmiInline extends StatelessWidget {
-  final BodyProfileStore profile;
-  const _BmiInline({required this.profile});
-
-  @override
-  Widget build(BuildContext context) {
-    final result = HealthFormulas.bmi(profile.weightKg, profile.heightCm, profile.gender, profile.age, true);
-    final category = HealthFormulas.bmiCategoryLabel(result.bmi);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 22),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-      decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
-        borderRadius: BorderRadius.circular(14),
-        border: Border(
-          top: const BorderSide(color: Premium.border),
-          right: const BorderSide(color: Premium.border),
-          bottom: const BorderSide(color: Premium.border),
-          left: const BorderSide(color: Premium.accent2, width: 3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('BMI ${result.bmi.toStringAsFixed(1)} · $category', style: Premium.heading(14.5, weight: FontWeight.w700)),
-              Text('${profile.weightKg.toStringAsFixed(1)} kg', style: Premium.body(13, color: Premium.textDim, weight: FontWeight.w600)),
-            ],
-          ),
-          const SizedBox(height: 7),
-          Text(
-            HealthFormulas.bmiAdvice(result.bmi),
-            style: Premium.body(11.5, color: Premium.textDim, weight: FontWeight.w500).copyWith(height: 1.55),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// Gradient highlight banner for the total daily calorie allowance
 /// (`.result-banner` vocabulary), sitting above the nutrient breakdown.
@@ -393,19 +350,19 @@ class _CalorieAllowanceBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 18),
       padding: const EdgeInsets.symmetric(vertical: 17, horizontal: 19),
       decoration: BoxDecoration(
-        gradient: Premium.accentGradient,
+        gradient: context.colors.accentGradient,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: Premium.accentGlowShadow(blur: 26, spread: -12),
+        boxShadow: context.colors.accentGlowShadow(blur: 26, spread: -12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'DAILY CALORIE ALLOWANCE',
-            style: Premium.body(10, color: Premium.ink.withValues(alpha: 0.65), weight: FontWeight.w700).copyWith(letterSpacing: 0.6),
+            style: Premium.body(context, 10, color: context.colors.onAccent.withValues(alpha: 0.65), weight: FontWeight.w700).copyWith(letterSpacing: 0.6),
           ),
           const SizedBox(height: 2),
-          Text('${calories.toStringAsFixed(0)} kcal', style: Premium.heading(22, weight: FontWeight.w700, color: Premium.ink)),
+          Text('${calories.toStringAsFixed(0)} kcal', style: Premium.heading(context, 22, weight: FontWeight.w700, color: context.colors.onAccent)),
         ],
       ),
     );
@@ -428,8 +385,8 @@ class _NutrientSection extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
-        border: Border.all(color: Premium.border),
+        gradient: context.colors.cardGradient,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(16),
         boxShadow: Premium.cardShadow,
       ),
@@ -440,13 +397,13 @@ class _NutrientSection extends StatelessWidget {
             children: [
               PremiumIconChip(icon: icon, size: 32),
               const SizedBox(width: 12),
-              Expanded(child: Text(title, style: Premium.heading(15, weight: FontWeight.w700))),
+              Expanded(child: Text(title, style: Premium.heading(context, 15, weight: FontWeight.w700))),
             ],
           ),
           const SizedBox(height: 14),
           _CatList(rows: rows),
           const SizedBox(height: 12),
-          Text(body, style: Premium.body(12, color: Premium.textDim).copyWith(height: 1.55)),
+          Text(body, style: Premium.body(context, 12, color: context.colors.textSecondary).copyWith(height: 1.55)),
         ],
       ),
     );
@@ -462,8 +419,8 @@ class _CatList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Premium.surface2,
-        border: Border.all(color: Premium.border),
+        color: context.colors.cardBackground,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -472,16 +429,16 @@ class _CatList extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
               decoration: BoxDecoration(
-                border: i == rows.length - 1 ? null : const Border(bottom: BorderSide(color: Premium.border)),
+                border: i == rows.length - 1 ? null : Border(bottom: BorderSide(color: context.colors.border)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(rows[i].$1, style: Premium.body(12.5, color: Premium.textDim, weight: FontWeight.w500))),
+                  Expanded(child: Text(rows[i].$1, style: Premium.body(context, 12.5, color: context.colors.textSecondary, weight: FontWeight.w500))),
                   const SizedBox(width: 10),
                   Text(
                     rows[i].$2,
-                    style: Premium.body(12.5, color: Premium.accent, weight: FontWeight.w700)
+                    style: Premium.body(context, 12.5, color: context.colors.accent, weight: FontWeight.w700)
                         .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
                   ),
                 ],

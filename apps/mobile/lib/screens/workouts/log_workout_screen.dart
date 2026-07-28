@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../data/body_profile_store.dart';
@@ -114,7 +115,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> {
     final profile = context.watch<BodyProfileStore>();
 
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 108),
@@ -131,11 +132,11 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: Premium.surface2,
+                    color: context.colors.cardBackground,
                     borderRadius: BorderRadius.circular(9),
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.keyboard_arrow_down, color: Premium.textDim, size: 20),
+                  child: Icon(Icons.keyboard_arrow_down, color: context.colors.textSecondary, size: 20),
                 ),
               ),
               const SizedBox(width: 10),
@@ -149,11 +150,11 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> {
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
-                  style: Premium.heading(19),
+                  style: Premium.heading(context, 19),
                 ),
               ),
               PopupMenuButton<void>(
-                icon: const Icon(Icons.more_vert, color: Premium.textDim),
+                icon: Icon(Icons.more_vert, color: context.colors.textSecondary),
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     onTap: () => _confirmDiscard(session),
@@ -161,7 +162,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> {
                       children: [
                         const Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF6B5C)),
                         const SizedBox(width: 8),
-                        Text('Discard workout', style: Premium.body(14, color: const Color(0xFFFF6B5C))),
+                        Text('Discard workout', style: Premium.body(context, 14, color: const Color(0xFFFF6B5C))),
                       ],
                     ),
                   ),
@@ -169,10 +170,10 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> {
               ),
               const SizedBox(width: 4),
               session.isSaving
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Premium.accent),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accent),
                     )
                   : PremiumGradientButton(
                       label: 'Finish',

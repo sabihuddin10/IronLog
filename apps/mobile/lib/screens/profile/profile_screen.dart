@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../auth/auth_state.dart';
 import '../../core/app_spacing.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../core/responsive.dart';
@@ -11,6 +12,7 @@ import '../../models/workout.dart';
 import '../../repositories/workout_repository.dart';
 import '../exercises/exercise_library_screen.dart';
 import '../tools/weight_tracker_screen.dart';
+import '../workouts/active_workout_session.dart';
 import '../workouts/workout_detail_screen.dart';
 import 'statistics_screen.dart';
 import 'theme_settings_screen.dart';
@@ -43,6 +45,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late Future<List<Workout>> _future;
+  late final ActiveWorkoutSession _session;
+  bool _sessionWasActive = false;
   _Metric _metric = _Metric.volume;
   _Period _period = _Period.threeMonths;
 
@@ -50,6 +54,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _future = context.read<WorkoutRepository>().list();
+    _session = context.read<ActiveWorkoutSession>();
+    _sessionWasActive = _session.isActive;
+    _session.addListener(_onSessionChanged);
+  }
+
+  @override
+  void dispose() {
+    _session.removeListener(_onSessionChanged);
+    super.dispose();
+  }
+
+  // This tab stays alive (never disposed) in RootScreen's IndexedStack, so
+  // finishing a workout from another tab wouldn't otherwise refetch it.
+  void _onSessionChanged() {
+    if (_sessionWasActive && !_session.isActive) _refresh();
+    _sessionWasActive = _session.isActive;
   }
 
   Future<void> _refresh() async {
@@ -127,17 +147,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final email = auth.user?.email ?? '';
 
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refresh,
-          color: Premium.accent,
-          backgroundColor: Premium.surface2,
+          color: context.colors.accent,
+          backgroundColor: context.colors.cardBackground,
           child: FutureBuilder<List<Workout>>(
             future: _future,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator(color: Premium.accent));
+                return Center(child: CircularProgressIndicator(color: context.colors.accent));
               }
               final workouts = <Workout>[...snapshot.data ?? []]
                 ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
@@ -174,11 +194,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPeriodChanged: (p) => setState(() => _period = p),
                   ),
                   SizedBox(height: context.scale(AppSpacing.xxl)),
-                  Text('Dashboard', style: Premium.heading(16)),
+                  Text('Dashboard', style: Premium.heading(context, 16)),
                   SizedBox(height: context.scale(AppSpacing.md)),
                   _DashboardGrid(workouts: workouts),
                   SizedBox(height: context.scale(AppSpacing.xxl)),
-                  Text('Workouts', style: Premium.heading(16)),
+                  Text('Workouts', style: Premium.heading(context, 16)),
                   SizedBox(height: context.scale(AppSpacing.md)),
                   if (workouts.isEmpty)
                     Padding(
@@ -188,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Center(
                         child: Text(
                           'No workouts logged yet.',
-                          style: Premium.body(13, color: Premium.textDim),
+                          style: Premium.body(context, 13, color: context.colors.textSecondary),
                         ),
                       ),
                     )
@@ -221,11 +241,11 @@ class _Header extends StatelessWidget {
         Container(
           width: context.scale(56),
           height: context.scale(56),
-          decoration: const BoxDecoration(gradient: Premium.accentGradient, shape: BoxShape.circle),
+          decoration: BoxDecoration(gradient: context.colors.accentGradient, shape: BoxShape.circle),
           alignment: Alignment.center,
           child: Text(
             name.substring(0, 1).toUpperCase(),
-            style: Premium.heading(22, color: Premium.ink),
+            style: Premium.heading(context, 22, color: context.colors.onAccent),
           ),
         ),
         SizedBox(width: context.scale(AppSpacing.md)),
@@ -233,7 +253,7 @@ class _Header extends StatelessWidget {
           child: Text(
             name,
             overflow: TextOverflow.ellipsis,
-            style: Premium.heading(20),
+            style: Premium.heading(context, 20),
           ),
         ),
         InkWell(
@@ -242,8 +262,8 @@ class _Header extends StatelessWidget {
           child: Container(
             width: 32,
             height: 32,
-            decoration: BoxDecoration(color: Premium.surface2, borderRadius: BorderRadius.circular(9)),
-            child: const Icon(Icons.settings_outlined, size: 17, color: Premium.textDim),
+            decoration: BoxDecoration(color: context.colors.cardBackground, borderRadius: BorderRadius.circular(9)),
+            child: Icon(Icons.settings_outlined, size: 17, color: context.colors.textSecondary),
           ),
         ),
       ],
@@ -285,9 +305,9 @@ class _Stat extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: Premium.heading(19)),
+        Text(value, style: Premium.heading(context, 19)),
         const SizedBox(height: 2),
-        Text(label, style: Premium.body(12, color: Premium.textDim)),
+        Text(label, style: Premium.body(context, 12, color: context.colors.textSecondary)),
       ],
     );
   }
@@ -334,7 +354,7 @@ class _VolumeChartCard extends StatelessWidget {
             for (final p in _Period.values)
               ListTile(
                 title: Text(p.label),
-                trailing: p == period ? const Icon(Icons.check, color: Premium.accent) : null,
+                trailing: p == period ? Icon(Icons.check, color: context.colors.accent) : null,
                 onTap: () => Navigator.of(context).pop(p),
               ),
           ],
@@ -381,10 +401,10 @@ class _VolumeChartCard extends StatelessWidget {
               Expanded(
                 child: RichText(
                   text: TextSpan(
-                    style: Premium.heading(22),
+                    style: Premium.heading(context, 22),
                     children: [
                       TextSpan(text: '${thisWeekTotal.toStringAsFixed(0)} $_unit '),
-                      TextSpan(text: 'this week', style: Premium.body(12.5, color: Premium.textDim)),
+                      TextSpan(text: 'this week', style: Premium.body(context, 12.5, color: context.colors.textSecondary)),
                     ],
                   ),
                 ),
@@ -395,15 +415,15 @@ class _VolumeChartCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Premium.surface3,
+                    color: context.colors.surfaceHigh,
                     borderRadius: BorderRadius.circular(9),
-                    border: Border.all(color: Premium.border),
+                    border: Border.all(color: context.colors.border),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(period.label, style: Premium.body(12, color: Premium.textDim)),
-                      const Icon(Icons.expand_more, size: 15, color: Premium.textFaint),
+                      Text(period.label, style: Premium.body(context, 12, color: context.colors.textSecondary)),
+                      Icon(Icons.expand_more, size: 15, color: context.colors.textFaint),
                     ],
                   ),
                 ),
@@ -443,7 +463,7 @@ class _VolumeChartCard extends StatelessWidget {
                               padding: const EdgeInsets.only(top: 4),
                               child: Text(
                                 DateFormat.Md().format(weekStarts[i]),
-                                style: Premium.body(10.5, color: Premium.textFaint),
+                                style: Premium.body(context, 10.5, color: context.colors.textFaint),
                               ),
                             );
                           },
@@ -461,10 +481,10 @@ class _VolumeChartCard extends StatelessWidget {
                                 begin: Alignment.bottomCenter,
                                 end: Alignment.topCenter,
                                 colors: i == weekStarts.length - 1
-                                    ? const [Premium.accent, Premium.accent2]
+                                    ? [context.colors.accent, context.colors.accent2]
                                     : [
-                                        Premium.accent.withValues(alpha: 0.28),
-                                        Premium.accent2.withValues(alpha: 0.28),
+                                        context.colors.accent.withValues(alpha: 0.28),
+                                        context.colors.accent2.withValues(alpha: 0.28),
                                       ],
                               ),
                               width: barWidth,
@@ -507,7 +527,7 @@ class _PremiumTabs<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(color: Premium.surface3, borderRadius: BorderRadius.circular(11)),
+      decoration: BoxDecoration(color: context.colors.surfaceHigh, borderRadius: BorderRadius.circular(11)),
       child: Row(
         children: [
           for (final entry in labels.entries)
@@ -518,16 +538,16 @@ class _PremiumTabs<T> extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    gradient: entry.key == value ? Premium.accentGradient : null,
+                    gradient: entry.key == value ? context.colors.accentGradient : null,
                     borderRadius: BorderRadius.circular(9),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     entry.value,
-                    style: Premium.body(
+                    style: Premium.body(context, 
                       12.5,
                       weight: entry.key == value ? FontWeight.w700 : FontWeight.w500,
-                      color: entry.key == value ? Premium.ink : Premium.textDim,
+                      color: entry.key == value ? context.colors.onAccent : context.colors.textSecondary,
                     ),
                   ),
                 ),
@@ -609,10 +629,10 @@ class _DashboardTile extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, color: Premium.accent, size: 20),
+          Icon(icon, color: context.colors.accent, size: 20),
           SizedBox(width: context.scale(AppSpacing.md)),
           Expanded(
-            child: Text(label, style: Premium.body(14, color: Premium.text, weight: FontWeight.w500)),
+            child: Text(label, style: Premium.body(context, 14, color: context.colors.textPrimary, weight: FontWeight.w500)),
           ),
         ],
       ),
@@ -638,11 +658,11 @@ class _WorkoutHistoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(workout.name, style: Premium.heading(14.5)),
+          Text(workout.name, style: Premium.heading(context, 14.5)),
           const SizedBox(height: 2),
           Text(
             DateFormat.yMMMd().add_jm().format(workout.startedAt.toLocal()),
-            style: Premium.body(12, color: Premium.textDim),
+            style: Premium.body(context, 12, color: context.colors.textSecondary),
           ),
           SizedBox(height: context.scale(AppSpacing.md)),
           Row(
@@ -673,8 +693,8 @@ class _MiniStat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: Premium.body(13, weight: FontWeight.w700, color: Premium.text)),
-          Text(label, style: Premium.body(11, color: Premium.textDim)),
+          Text(value, style: Premium.body(context, 13, weight: FontWeight.w700, color: context.colors.textPrimary)),
+          Text(label, style: Premium.body(context, 11, color: context.colors.textSecondary)),
         ],
       ),
     );

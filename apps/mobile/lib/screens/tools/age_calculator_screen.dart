@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 
@@ -78,7 +79,7 @@ class _AgeCalculatorScreenState extends State<AgeCalculatorScreen> {
     final daysToNextBirthday = nextBirthday.difference(asOfDateOnly).inDays;
 
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -110,7 +111,7 @@ class _AgeCalculatorScreenState extends State<AgeCalculatorScreen> {
                 children: [
                   Text(
                     'AS OF',
-                    style: Premium.body(9.5, color: Premium.textFaint, weight: FontWeight.w700).copyWith(letterSpacing: 0.6),
+                    style: Premium.body(context, 9.5, color: context.colors.textFaint, weight: FontWeight.w700).copyWith(letterSpacing: 0.6),
                   ),
                   const SizedBox(height: 7),
                   InkWell(
@@ -119,8 +120,8 @@ class _AgeCalculatorScreenState extends State<AgeCalculatorScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 13),
                       decoration: BoxDecoration(
-                        color: Premium.surface3,
-                        border: Border.all(color: Premium.border),
+                        color: context.colors.surfaceHigh,
+                        border: Border.all(color: context.colors.border),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -128,9 +129,9 @@ class _AgeCalculatorScreenState extends State<AgeCalculatorScreen> {
                         children: [
                           Text(
                             '${_asOf.year}-${_asOf.month.toString().padLeft(2, '0')}-${_asOf.day.toString().padLeft(2, '0')}',
-                            style: Premium.body(15, color: Premium.text, weight: FontWeight.w600),
+                            style: Premium.body(context, 15, color: context.colors.textPrimary, weight: FontWeight.w600),
                           ),
-                          const Icon(Icons.calendar_today_outlined, size: 15, color: Premium.textFaint),
+                          Icon(Icons.calendar_today_outlined, size: 15, color: context.colors.textFaint),
                         ],
                       ),
                     ),
@@ -142,21 +143,21 @@ class _AgeCalculatorScreenState extends State<AgeCalculatorScreen> {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(vertical: 17, horizontal: 19),
               decoration: BoxDecoration(
-                gradient: Premium.accentGradient,
+                gradient: context.colors.accentGradient,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: Premium.accentGlowShadow(blur: 26, spread: -12),
+                boxShadow: context.colors.accentGlowShadow(blur: 26, spread: -12),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '$years years, $months months, $days days',
-                    style: Premium.heading(20, weight: FontWeight.w700, color: Premium.ink),
+                    style: Premium.heading(context, 20, weight: FontWeight.w700, color: context.colors.onAccent),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'since ${_formatLongDate(_birthDate)}',
-                    style: Premium.body(11.5, color: Premium.ink.withValues(alpha: 0.75), weight: FontWeight.w600),
+                    style: Premium.body(context, 11.5, color: context.colors.onAccent.withValues(alpha: 0.75), weight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -205,15 +206,15 @@ class _ScHeader extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Premium.surface2,
-                border: Border.all(color: Premium.border),
+                color: context.colors.cardBackground,
+                border: Border.all(color: context.colors.border),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back, size: 16, color: Premium.textDim),
+              child: Icon(Icons.arrow_back, size: 16, color: context.colors.textSecondary),
             ),
           ),
           const SizedBox(width: 14),
-          Text(title, style: Premium.heading(19)),
+          Text(title, style: Premium.heading(context, 19)),
         ],
       ),
     );
@@ -229,7 +230,7 @@ class _ScDesc extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 22),
-      child: Text(text, style: Premium.body(12.5, color: Premium.textDim).copyWith(height: 1.6)),
+      child: Text(text, style: Premium.body(context, 12.5, color: context.colors.textSecondary).copyWith(height: 1.6)),
     );
   }
 }
@@ -249,7 +250,7 @@ class _DateBox extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: Premium.body(9.5, color: Premium.textFaint, weight: FontWeight.w700).copyWith(letterSpacing: 0.6),
+          style: Premium.body(context, 9.5, color: context.colors.textFaint, weight: FontWeight.w700).copyWith(letterSpacing: 0.6),
         ),
         const SizedBox(height: 7),
         InkWell(
@@ -259,11 +260,11 @@ class _DateBox extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 8),
             decoration: BoxDecoration(
-              color: Premium.surface3,
-              border: Border.all(color: Premium.border),
+              color: context.colors.surfaceHigh,
+              border: Border.all(color: context.colors.border),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(value, textAlign: TextAlign.center, style: Premium.body(15, color: Premium.text, weight: FontWeight.w600)),
+            child: Text(value, textAlign: TextAlign.center, style: Premium.body(context, 15, color: context.colors.textPrimary, weight: FontWeight.w600)),
           ),
         ),
       ],
@@ -283,8 +284,8 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
-        border: Border.all(color: Premium.border),
+        gradient: context.colors.cardGradient,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(18),
         boxShadow: Premium.cardShadow,
       ),
@@ -293,9 +294,9 @@ class _StatCard extends StatelessWidget {
         children: [
           PremiumIconChip(icon: icon, size: 32),
           const SizedBox(height: 13),
-          Text(value, style: Premium.heading(20, weight: FontWeight.w600)),
+          Text(value, style: Premium.heading(context, 20, weight: FontWeight.w600)),
           const SizedBox(height: 5),
-          Text(label, style: Premium.body(12, color: Premium.textDim, weight: FontWeight.w500)),
+          Text(label, style: Premium.body(context, 12, color: context.colors.textSecondary, weight: FontWeight.w500)),
         ],
       ),
     );

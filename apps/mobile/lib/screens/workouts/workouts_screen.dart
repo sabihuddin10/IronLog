@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../core/responsive.dart';
@@ -23,12 +24,30 @@ class WorkoutsScreen extends StatefulWidget {
 class _WorkoutsScreenState extends State<WorkoutsScreen> {
   late Future<List<Workout>> _future;
   late Future<List<WorkoutTemplate>> _templatesFuture;
+  late final ActiveWorkoutSession _session;
+  bool _sessionWasActive = false;
 
   @override
   void initState() {
     super.initState();
     _load();
     _loadTemplates();
+    _session = context.read<ActiveWorkoutSession>();
+    _sessionWasActive = _session.isActive;
+    _session.addListener(_onSessionChanged);
+  }
+
+  @override
+  void dispose() {
+    _session.removeListener(_onSessionChanged);
+    super.dispose();
+  }
+
+  // This tab stays alive (never disposed) in RootScreen's IndexedStack, so
+  // finishing a workout from another tab wouldn't otherwise refetch it.
+  void _onSessionChanged() {
+    if (_sessionWasActive && !_session.isActive) _refresh();
+    _sessionWasActive = _session.isActive;
   }
 
   void _load() {
@@ -55,22 +74,23 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   }
 
   Future<void> _deletePreset(WorkoutTemplate template) async {
+    final repository = context.read<WorkoutTemplateRepository>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Premium.surface2,
-        title: Text('Delete "${template.name}"?', style: Premium.heading(16)),
+        backgroundColor: context.colors.cardBackground,
+        title: Text('Delete "${template.name}"?', style: Premium.heading(context, 16)),
         content: Text(
           'This preset will be removed. It won\'t affect any workouts already logged.',
-          style: Premium.body(13, color: Premium.textDim),
+          style: Premium.body(context, 13, color: context.colors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel', style: Premium.body(13, weight: FontWeight.w600, color: Premium.textDim)),
+            child: Text('Cancel', style: Premium.body(context, 13, weight: FontWeight.w600, color: context.colors.textSecondary)),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFFF6B5C), foregroundColor: Premium.text),
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFFF6B5C), foregroundColor: Colors.white),
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.w700)),
           ),
@@ -78,7 +98,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       ),
     );
     if (confirmed != true) return;
-    await context.read<WorkoutTemplateRepository>().delete(template.id);
+    await repository.delete(template.id);
     if (mounted) setState(_loadTemplates);
   }
 
@@ -89,19 +109,19 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Premium.surface2,
-        title: Text('Log a workout', style: Premium.heading(17)),
+        backgroundColor: context.colors.cardBackground,
+        title: Text('Log a workout', style: Premium.heading(context, 17)),
         content: Text(
           'Are you working out right now, or logging one you already did?',
-          style: Premium.body(13.5, color: Premium.textDim),
+          style: Premium.body(context, 13.5, color: context.colors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Past workout', style: Premium.body(13, weight: FontWeight.w600, color: Premium.textDim)),
+            child: Text('Past workout', style: Premium.body(context, 13, weight: FontWeight.w600, color: context.colors.textSecondary)),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Premium.accent, foregroundColor: Premium.ink),
+            style: FilledButton.styleFrom(backgroundColor: context.colors.accent, foregroundColor: context.colors.onAccent),
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Live workout', style: TextStyle(fontWeight: FontWeight.w700)),
           ),
@@ -118,7 +138,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       if (choice == null) return;
       isLive = choice;
     }
-    if (!context.mounted) return;
+    if (!mounted) return;
     final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => LogWorkoutScreen(isLiveSession: isLive, template: template)),
     );
@@ -128,13 +148,13 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
           onRefresh: _refresh,
-          color: Premium.accent,
-          backgroundColor: Premium.surface2,
+          color: context.colors.accent,
+          backgroundColor: context.colors.cardBackground,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 108),
             children: [
@@ -146,11 +166,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     children: [
                       Text(
                         'YOUR TRAINING',
-                        style: Premium.body(context.scale(11), weight: FontWeight.w600, color: Premium.textFaint)
+                        style: Premium.body(context, context.scale(11), weight: FontWeight.w600, color: context.colors.textFaint)
                             .copyWith(letterSpacing: 1.1),
                       ),
                       const SizedBox(height: 2),
-                      Text('Workouts', style: Premium.heading(context.scale(27))),
+                      Text('Workouts', style: Premium.heading(context, context.scale(27))),
                     ],
                   ),
                   Material(
@@ -162,18 +182,18 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                         width: context.scale(44),
                         height: context.scale(44),
                         decoration: BoxDecoration(
-                          gradient: Premium.accentGradient,
+                          gradient: context.colors.accentGradient,
                           shape: BoxShape.circle,
-                          boxShadow: Premium.accentGlowShadow(),
+                          boxShadow: context.colors.accentGlowShadow(),
                         ),
-                        child: Icon(Icons.add, color: Premium.ink, size: context.scale(24)),
+                        child: Icon(Icons.add, color: context.colors.onAccent, size: context.scale(24)),
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 22),
-              Text('Presets', style: Premium.heading(15)),
+              Text('Presets', style: Premium.heading(context, 15)),
               const SizedBox(height: 10),
               SizedBox(
                 height: 108,
@@ -221,16 +241,16 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Workout in progress', style: Premium.heading(14.5)),
+                                Text('Workout in progress', style: Premium.heading(context, 14.5)),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${session.durationLabel} · ${session.completedSetCount} sets',
-                                  style: Premium.body(12, color: Premium.textDim),
+                                  style: Premium.body(context, 12, color: context.colors.textSecondary),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(Icons.chevron_right, color: Premium.textFaint),
+                          Icon(Icons.chevron_right, color: context.colors.textFaint),
                         ],
                       ),
                     ),
@@ -243,9 +263,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 future: _future,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 60),
-                      child: Center(child: CircularProgressIndicator(color: Premium.accent)),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 60),
+                      child: Center(child: CircularProgressIndicator(color: context.colors.accent)),
                     );
                   }
                   if (snapshot.hasError) {
@@ -253,12 +273,12 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 40),
                       child: Column(
                         children: [
-                          Icon(Icons.cloud_off, size: 48, color: Premium.textFaint),
+                          Icon(Icons.cloud_off, size: 48, color: context.colors.textFaint),
                           const SizedBox(height: 16),
                           Text(
                             'Could not load workouts.\n${snapshot.error}',
                             textAlign: TextAlign.center,
-                            style: Premium.body(12.5, color: Premium.textDim),
+                            style: Premium.body(context, 12.5, color: context.colors.textSecondary),
                           ),
                         ],
                       ),
@@ -270,9 +290,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 60),
                       child: Column(
                         children: [
-                          Icon(Icons.fitness_center, size: 44, color: Premium.textFaint),
+                          Icon(Icons.fitness_center, size: 44, color: context.colors.textFaint),
                           const SizedBox(height: 14),
-                          Text('No workouts logged yet.', style: Premium.body(13, color: Premium.textDim)),
+                          Text('No workouts logged yet.', style: Premium.body(context, 13, color: context.colors.textSecondary)),
                         ],
                       ),
                     );
@@ -323,12 +343,12 @@ class _WorkoutRow extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  gradient: Premium.accentGradient,
+                  gradient: context.colors.accentGradient,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: Premium.accentGlowShadow(blur: 12, spread: -4),
+                  boxShadow: context.colors.accentGlowShadow(blur: 12, spread: -4),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.fitness_center, color: Premium.ink, size: 18),
+                child: Icon(Icons.fitness_center, color: context.colors.onAccent, size: 18),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -339,17 +359,17 @@ class _WorkoutRow extends StatelessWidget {
                       workout.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Premium.heading(14.5, weight: FontWeight.w600),
+                      style: Premium.heading(context, 14.5, weight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       DateFormat.yMMMd().add_jm().format(workout.startedAt.toLocal()),
-                      style: Premium.body(12, color: Premium.textDim),
+                      style: Premium.body(context, 12, color: context.colors.textSecondary),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, size: 20, color: Premium.textFaint),
+              Icon(Icons.chevron_right, size: 20, color: context.colors.textFaint),
             ],
           ),
           const SizedBox(height: 14),
@@ -397,9 +417,9 @@ class _PresetCard extends StatelessWidget {
                 InkWell(
                   onTap: onDelete,
                   customBorder: const CircleBorder(),
-                  child: const Padding(
-                    padding: EdgeInsets.all(3),
-                    child: Icon(Icons.close, size: 14, color: Premium.textFaint),
+                  child: Padding(
+                    padding: const EdgeInsets.all(3),
+                    child: Icon(Icons.close, size: 14, color: context.colors.textFaint),
                   ),
                 ),
               ],
@@ -409,12 +429,12 @@ class _PresetCard extends StatelessWidget {
               template.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Premium.heading(13.5, weight: FontWeight.w600),
+              style: Premium.heading(context, 13.5, weight: FontWeight.w600),
             ),
             const SizedBox(height: 3),
             Text(
               '$count exercise${count == 1 ? '' : 's'}',
-              style: Premium.body(11.5, color: Premium.textDim),
+              style: Premium.body(context, 11.5, color: context.colors.textSecondary),
             ),
           ],
         ),
@@ -441,15 +461,15 @@ class _NewPresetCard extends StatelessWidget {
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              border: Border.all(color: Premium.accent.withValues(alpha: 0.35)),
+              border: Border.all(color: context.colors.accent.withValues(alpha: 0.35)),
               borderRadius: BorderRadius.circular(Premium.radiusLg),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.add, size: 20, color: Premium.accent),
+                Icon(Icons.add, size: 20, color: context.colors.accent),
                 const SizedBox(height: 6),
-                Text('New preset', style: Premium.body(12, weight: FontWeight.w600, color: Premium.accent)),
+                Text('New preset', style: Premium.body(context, 12, weight: FontWeight.w600, color: context.colors.accent)),
               ],
             ),
           ),
@@ -470,9 +490,9 @@ class _MiniStat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: Premium.heading(14, weight: FontWeight.w600)),
+          Text(value, style: Premium.heading(context, 14, weight: FontWeight.w600)),
           const SizedBox(height: 2),
-          Text(label, style: Premium.body(11, color: Premium.textFaint)),
+          Text(label, style: Premium.body(context, 11, color: context.colors.textFaint)),
         ],
       ),
     );

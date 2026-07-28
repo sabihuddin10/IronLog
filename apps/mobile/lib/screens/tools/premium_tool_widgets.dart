@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../data/body_profile_store.dart';
 import '../../utils/health_formulas.dart';
@@ -32,7 +33,7 @@ class ToolScreenScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -48,15 +49,15 @@ class ToolScreenScaffold extends StatelessWidget {
                     height: 32,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Premium.surface2,
+                      color: context.colors.cardBackground,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Premium.border),
+                      border: Border.all(color: context.colors.border),
                     ),
-                    child: const Icon(Icons.arrow_back_ios_new, size: 15, color: Premium.textDim),
+                    child: Icon(Icons.arrow_back_ios_new, size: 15, color: context.colors.textSecondary),
                   ),
                 ),
                 const SizedBox(width: 14),
-                Expanded(child: Text(title, style: Premium.heading(19))),
+                Expanded(child: Text(title, style: Premium.heading(context, 19))),
               ],
             ),
             const SizedBox(height: 16),
@@ -82,7 +83,7 @@ class PremiumScDesc extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 22),
       child: RichText(
         text: TextSpan(
-          style: Premium.body(12.5, color: Premium.textDim).copyWith(height: 1.6),
+          style: Premium.body(context, 12.5, color: context.colors.textSecondary).copyWith(height: 1.6),
           children: spans,
         ),
       ),
@@ -106,7 +107,7 @@ class PremiumFieldRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(width: 64, child: Text(label, style: Premium.body(13.5, weight: FontWeight.w600, color: Premium.text))),
+          SizedBox(width: 64, child: Text(label, style: Premium.body(context, 13.5, weight: FontWeight.w600, color: context.colors.textPrimary))),
           const SizedBox(width: 14),
           Expanded(child: input),
           const SizedBox(width: 14),
@@ -130,15 +131,15 @@ class PremiumUnderlineField extends StatelessWidget {
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       onChanged: onChanged,
-      style: Premium.body(16, weight: FontWeight.w600, color: Premium.text),
-      cursorColor: Premium.accent,
-      decoration: const InputDecoration(
+      style: Premium.body(context, 16, weight: FontWeight.w600, color: context.colors.textPrimary),
+      cursorColor: context.colors.accent,
+      decoration: InputDecoration(
         isDense: true,
         filled: false,
-        contentPadding: EdgeInsets.only(bottom: 8, top: 4),
-        border: UnderlineInputBorder(borderSide: BorderSide(color: Premium.borderStrong, width: 1.5)),
-        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Premium.borderStrong, width: 1.5)),
-        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Premium.accent, width: 1.5)),
+        contentPadding: const EdgeInsets.only(bottom: 8, top: 4),
+        border: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.borderStrong, width: 1.5)),
+        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.borderStrong, width: 1.5)),
+        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.accent, width: 1.5)),
       ),
     );
   }
@@ -163,14 +164,14 @@ class PremiumPillGlyphButton extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: selected ? Premium.accentGradient : null,
-          color: selected ? null : Premium.surface3,
-          border: selected ? null : Border.all(color: Premium.border),
-          boxShadow: selected ? Premium.accentGlowShadow(blur: 12, spread: -4) : null,
+          gradient: selected ? context.colors.accentGradient : null,
+          color: selected ? null : context.colors.surfaceHigh,
+          border: selected ? null : Border.all(color: context.colors.border),
+          boxShadow: selected ? context.colors.accentGlowShadow(blur: 12, spread: -4) : null,
         ),
         child: Text(
           glyph,
-          style: Premium.body(14, weight: FontWeight.w700, color: selected ? Premium.ink : Premium.textFaint),
+          style: Premium.body(context, 14, weight: FontWeight.w700, color: selected ? context.colors.onAccent : context.colors.textFaint),
         ),
       ),
     );
@@ -213,15 +214,15 @@ class PremiumUnitPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         decoration: BoxDecoration(
-          gradient: selected ? Premium.accentGradient : null,
-          color: selected ? null : Premium.surface3,
-          border: selected ? null : Border.all(color: Premium.border),
+          gradient: selected ? context.colors.accentGradient : null,
+          color: selected ? null : context.colors.surfaceHigh,
+          border: selected ? null : Border.all(color: context.colors.border),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: selected ? Premium.accentGlowShadow(blur: 12, spread: -4) : null,
+          boxShadow: selected ? context.colors.accentGlowShadow(blur: 12, spread: -4) : null,
         ),
         child: Text(
           label,
-          style: Premium.body(10.5, weight: FontWeight.w700, color: selected ? Premium.ink : Premium.textFaint)
+          style: Premium.body(context, 10.5, weight: FontWeight.w700, color: selected ? context.colors.onAccent : context.colors.textFaint)
               .copyWith(letterSpacing: 0.3),
         ),
       ),
@@ -244,7 +245,7 @@ class PremiumSelectRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 22),
       child: Row(
         children: [
-          Text(label, style: Premium.body(13.5, weight: FontWeight.w600, color: Premium.text)),
+          Text(label, style: Premium.body(context, 13.5, weight: FontWeight.w600, color: context.colors.textPrimary)),
           const SizedBox(width: 12),
           Expanded(
             child: Align(
@@ -257,8 +258,8 @@ class PremiumSelectRow extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
                     decoration: BoxDecoration(
-                      color: Premium.surface2,
-                      border: Border.all(color: Premium.border),
+                      color: context.colors.cardBackground,
+                      border: Border.all(color: context.colors.border),
                       borderRadius: BorderRadius.circular(11),
                     ),
                     child: Row(
@@ -269,11 +270,11 @@ class PremiumSelectRow extends StatelessWidget {
                             value,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            style: Premium.body(12.5, weight: FontWeight.w500, color: Premium.textDim),
+                            style: Premium.body(context, 12.5, weight: FontWeight.w500, color: context.colors.textSecondary),
                           ),
                         ),
                         const SizedBox(width: 6),
-                        const Icon(Icons.keyboard_arrow_down, size: 14, color: Premium.textFaint),
+                        Icon(Icons.keyboard_arrow_down, size: 14, color: context.colors.textFaint),
                       ],
                     ),
                   ),
@@ -297,7 +298,7 @@ Future<T?> showPremiumPicker<T>({
 }) {
   return showModalBottomSheet<T>(
     context: context,
-    backgroundColor: Premium.surface2,
+    backgroundColor: context.colors.cardBackground,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (context) {
       return SafeArea(
@@ -308,12 +309,12 @@ Future<T?> showPremiumPicker<T>({
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-                child: Align(alignment: Alignment.centerLeft, child: Text(title, style: Premium.heading(15))),
+                child: Align(alignment: Alignment.centerLeft, child: Text(title, style: Premium.heading(context, 15))),
               ),
               for (final option in options)
                 ListTile(
-                  title: Text(labelOf(option), style: Premium.body(14, weight: FontWeight.w500, color: Premium.text)),
-                  trailing: option == selected ? const Icon(Icons.check, color: Premium.accent) : null,
+                  title: Text(labelOf(option), style: Premium.body(context, 14, weight: FontWeight.w500, color: context.colors.textPrimary)),
+                  trailing: option == selected ? Icon(Icons.check, color: context.colors.accent) : null,
                   onTap: () => Navigator.of(context).pop(option),
                 ),
             ],
@@ -345,29 +346,29 @@ class PremiumResultBannerPair extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 17),
       decoration: BoxDecoration(
-        gradient: Premium.accentGradient,
+        gradient: context.colors.accentGradient,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: Premium.accentGlowShadow(blur: 26, spread: -12),
+        boxShadow: context.colors.accentGlowShadow(blur: 26, spread: -12),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [_block(leftLabel, leftValue), _block(rightLabel, rightValue)],
+        children: [_block(context, leftLabel, leftValue), _block(context, rightLabel, rightValue)],
       ),
     );
   }
 
-  Widget _block(String label, String value) {
+  Widget _block(BuildContext context, String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
-          style: Premium.body(10, weight: FontWeight.w700, color: Premium.ink.withValues(alpha: 0.65))
+          style: Premium.body(context, 10, weight: FontWeight.w700, color: context.colors.onAccent.withValues(alpha: 0.65))
               .copyWith(letterSpacing: 0.7),
         ),
         const SizedBox(height: 2),
-        Text(value, style: Premium.heading(22, weight: FontWeight.w700, color: Premium.ink)),
+        Text(value, style: Premium.heading(context, 22, weight: FontWeight.w700, color: context.colors.onAccent)),
       ],
     );
   }
@@ -387,17 +388,17 @@ class PremiumResultBannerCentered extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 17),
       decoration: BoxDecoration(
-        gradient: Premium.accentGradient,
+        gradient: context.colors.accentGradient,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: Premium.accentGlowShadow(blur: 26, spread: -12),
+        boxShadow: context.colors.accentGlowShadow(blur: 26, spread: -12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(value, style: Premium.heading(22, weight: FontWeight.w700, color: Premium.ink)),
+          Text(value, style: Premium.heading(context, 22, weight: FontWeight.w700, color: context.colors.onAccent)),
           const SizedBox(height: 4),
-          Text(subtitle, style: Premium.body(11.5, weight: FontWeight.w600, color: Premium.ink.withValues(alpha: 0.75))),
+          Text(subtitle, style: Premium.body(context, 11.5, weight: FontWeight.w600, color: context.colors.onAccent.withValues(alpha: 0.75))),
         ],
       ),
     );
@@ -424,18 +425,18 @@ class PremiumCatList extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Premium.surface2,
-        border: Border.all(color: Premium.border),
+        color: context.colors.cardBackground,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(16),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
-        children: [for (var i = 0; i < rows.length; i++) _row(rows[i], isLast: i == rows.length - 1)],
+        children: [for (var i = 0; i < rows.length; i++) _row(context, rows[i], isLast: i == rows.length - 1)],
       ),
     );
   }
 
-  Widget _row(PremiumCatRowData data, {required bool isLast}) {
+  Widget _row(BuildContext context, PremiumCatRowData data, {required bool isLast}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -443,12 +444,12 @@ class PremiumCatList extends StatelessWidget {
             ? LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Premium.accentDim, Premium.accent2.withValues(alpha: 0.08)],
+                colors: [context.colors.accentDim, context.colors.accent2.withValues(alpha: 0.08)],
               )
             : null,
         border: Border(
-          bottom: isLast ? BorderSide.none : const BorderSide(color: Premium.border),
-          left: BorderSide(color: data.active ? Premium.accent : Colors.transparent, width: 3),
+          bottom: isLast ? BorderSide.none : BorderSide(color: context.colors.border),
+          left: BorderSide(color: data.active ? context.colors.accent : Colors.transparent, width: 3),
         ),
       ),
       child: Row(
@@ -458,13 +459,13 @@ class PremiumCatList extends StatelessWidget {
             child: Text(
               data.label,
               overflow: TextOverflow.ellipsis,
-              style: Premium.body(12.5, weight: data.active ? FontWeight.w700 : FontWeight.w500, color: data.active ? Premium.text : Premium.textDim),
+              style: Premium.body(context, 12.5, weight: data.active ? FontWeight.w700 : FontWeight.w500, color: data.active ? context.colors.textPrimary : context.colors.textSecondary),
             ),
           ),
           const SizedBox(width: 10),
           Text(
             data.value,
-            style: Premium.body(12.5, weight: FontWeight.w600, color: data.active ? Premium.accent : Premium.textFaint),
+            style: Premium.body(context, 12.5, weight: FontWeight.w600, color: data.active ? context.colors.accent : context.colors.textFaint),
           ),
         ],
       ),
@@ -480,20 +481,36 @@ class PremiumInfoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A borderRadius requires uniform border-side colors in Flutter, so the
+    // accent-colored left stripe can't be part of `border` alongside the
+    // neutral other three sides (that combination throws at paint time,
+    // silently dropping this widget's content) — it's a separate clipped
+    // Container instead.
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Premium.surface2,
+        color: context.colors.cardBackground,
         borderRadius: BorderRadius.circular(12),
-        border: Border(
-          top: const BorderSide(color: Premium.border),
-          right: const BorderSide(color: Premium.border),
-          bottom: const BorderSide(color: Premium.border),
-          left: const BorderSide(color: Premium.accent2, width: 3),
+        border: Border.all(color: context.colors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 3, color: context.colors.accent2),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Text(
+                  text,
+                  style: Premium.body(context, 12, weight: FontWeight.w500, color: context.colors.textSecondary).copyWith(height: 1.55),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      child: Text(text, style: Premium.body(12, weight: FontWeight.w500, color: Premium.textDim).copyWith(height: 1.55)),
     );
   }
 }
@@ -512,39 +529,57 @@ class PremiumBmiInline extends StatelessWidget {
     final result = HealthFormulas.bmi(profile.weightKg, profile.heightCm, profile.gender, profile.age, true);
     final category = HealthFormulas.bmiCategoryLabel(result.bmi);
 
+    // Same fix as PremiumInfoBanner: a borderRadius requires uniform
+    // border-side colors, so the accent left stripe is a separate clipped
+    // Container rather than part of `border` — otherwise painting this
+    // decoration throws and the whole card renders with no text.
     return Container(
       margin: const EdgeInsets.only(bottom: 22),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
       decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
+        gradient: context.colors.cardGradient,
         borderRadius: BorderRadius.circular(14),
-        border: Border(
-          top: const BorderSide(color: Premium.border),
-          right: const BorderSide(color: Premium.border),
-          bottom: const BorderSide(color: Premium.border),
-          left: const BorderSide(color: Premium.accent2, width: 3),
-        ),
+        border: Border.all(color: context.colors.border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  'BMI ${result.bmi.toStringAsFixed(1)} · $category',
-                  overflow: TextOverflow.ellipsis,
-                  style: Premium.heading(14.5, weight: FontWeight.w700),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 3, color: context.colors.accent2),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'BMI ${result.bmi.toStringAsFixed(1)} · $category',
+                            overflow: TextOverflow.ellipsis,
+                            style: Premium.heading(context, 14.5, weight: FontWeight.w700),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${profile.weightKg.toStringAsFixed(1)} kg',
+                          style: Premium.body(context, 13, weight: FontWeight.w600, color: context.colors.textSecondary),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      HealthFormulas.bmiAdvice(result.bmi),
+                      style: Premium.body(context, 11.5, color: context.colors.textSecondary).copyWith(height: 1.55),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Text('${profile.weightKg.toStringAsFixed(1)} kg', style: Premium.body(13, weight: FontWeight.w600, color: Premium.textDim)),
-            ],
-          ),
-          const SizedBox(height: 7),
-          Text(HealthFormulas.bmiAdvice(result.bmi), style: Premium.body(11.5, color: Premium.textDim).copyWith(height: 1.55)),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -563,8 +598,8 @@ class PremiumConvertCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: Premium.cardGradient,
-        border: Border.all(color: Premium.border),
+        gradient: context.colors.cardGradient,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(18),
         boxShadow: Premium.cardShadow,
       ),
@@ -573,7 +608,7 @@ class PremiumConvertCard extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Premium.body(11, weight: FontWeight.w700, color: Premium.textFaint).copyWith(letterSpacing: 0.6),
+            style: Premium.body(context, 11, weight: FontWeight.w700, color: context.colors.textFaint).copyWith(letterSpacing: 0.6),
           ),
           const SizedBox(height: 16),
           ...children,
@@ -597,8 +632,8 @@ class PremiumConvertField extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Premium.surface3,
-        border: Border.all(color: Premium.border),
+        color: context.colors.surfaceHigh,
+        border: Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -607,7 +642,7 @@ class PremiumConvertField extends StatelessWidget {
             width: 32,
             child: Text(
               tag,
-              style: Premium.body(10.5, weight: FontWeight.w700, color: Premium.textFaint).copyWith(letterSpacing: 0.5),
+              style: Premium.body(context, 10.5, weight: FontWeight.w700, color: context.colors.textFaint).copyWith(letterSpacing: 0.5),
             ),
           ),
           const SizedBox(width: 11),
@@ -616,8 +651,8 @@ class PremiumConvertField extends StatelessWidget {
               controller: controller,
               onChanged: onChanged,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: Premium.body(16, weight: FontWeight.w700, color: Premium.text),
-              cursorColor: Premium.accent,
+              style: Premium.body(context, 16, weight: FontWeight.w700, color: context.colors.textPrimary),
+              cursorColor: context.colors.accent,
               decoration: const InputDecoration(
                 isDense: true,
                 filled: false,
@@ -630,7 +665,7 @@ class PremiumConvertField extends StatelessWidget {
           ),
           if (unit != null) ...[
             const SizedBox(width: 8),
-            Text(unit!, style: Premium.body(11.5, weight: FontWeight.w600, color: Premium.textDim)),
+            Text(unit!, style: Premium.body(context, 11.5, weight: FontWeight.w600, color: context.colors.textSecondary)),
           ],
         ],
       ),
@@ -654,12 +689,12 @@ class PremiumConvertSwapIcon extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Premium.accentDim, Premium.accent2.withValues(alpha: 0.1)],
+          colors: [context.colors.accentDim, context.colors.accent2.withValues(alpha: 0.1)],
         ),
-        border: Border.all(color: Premium.accent.withValues(alpha: 0.28)),
-        boxShadow: Premium.accentGlowShadow(blur: 12, spread: -6),
+        border: Border.all(color: context.colors.accent.withValues(alpha: 0.28)),
+        boxShadow: context.colors.accentGlowShadow(blur: 12, spread: -6),
       ),
-      child: const Icon(Icons.swap_vert, size: 15, color: Premium.accent),
+      child: Icon(Icons.swap_vert, size: 15, color: context.colors.accent),
     );
   }
 }
@@ -679,36 +714,36 @@ class PremiumWaterGlasses extends StatelessWidget {
     return Wrap(
       spacing: 9,
       runSpacing: 9,
-      children: [for (var i = 0; i < total; i++) _glass(filled: i < filled), _addTile()],
+      children: [for (var i = 0; i < total; i++) _glass(context, filled: i < filled), _addTile(context)],
     );
   }
 
-  Widget _glass({required bool filled}) {
+  Widget _glass(BuildContext context, {required bool filled}) {
     return Container(
       width: 36,
       height: 36,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        gradient: filled ? Premium.accentGradient : null,
-        color: filled ? null : Premium.surface3,
-        border: filled ? null : Border.all(color: Premium.border),
+        gradient: filled ? context.colors.accentGradient : null,
+        color: filled ? null : context.colors.surfaceHigh,
+        border: filled ? null : Border.all(color: context.colors.border),
         borderRadius: BorderRadius.circular(11),
-        boxShadow: filled ? Premium.accentGlowShadow(blur: 12, spread: -4) : null,
+        boxShadow: filled ? context.colors.accentGlowShadow(blur: 12, spread: -4) : null,
       ),
-      child: Icon(Icons.water_drop, size: 15, color: filled ? Premium.ink : Premium.textFaint),
+      child: Icon(Icons.water_drop, size: 15, color: filled ? context.colors.onAccent : context.colors.textFaint),
     );
   }
 
-  Widget _addTile() {
+  Widget _addTile(BuildContext context) {
     return Container(
       width: 36,
       height: 36,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        border: Border.all(color: Premium.accent.withValues(alpha: 0.35)),
+        border: Border.all(color: context.colors.accent.withValues(alpha: 0.35)),
         borderRadius: BorderRadius.circular(11),
       ),
-      child: Text('+', style: Premium.body(15, weight: FontWeight.w700, color: Premium.accent)),
+      child: Text('+', style: Premium.body(context, 15, weight: FontWeight.w700, color: context.colors.accent)),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/app_colors.dart';
 import '../core/premium_theme.dart';
 import '../core/premium_widgets.dart';
 import '../core/responsive.dart';
@@ -25,17 +26,34 @@ class _RootScreenState extends State<RootScreen> {
   ];
 
   static const _destinations = [
-    NavEntry(icon: Icons.grid_view_outlined, selectedIcon: Icons.grid_view_rounded, label: 'Dashboard'),
-    NavEntry(icon: Icons.fitness_center_outlined, selectedIcon: Icons.fitness_center, label: 'Workouts'),
-    NavEntry(icon: Icons.calculate_outlined, selectedIcon: Icons.calculate, label: 'Tools'),
-    NavEntry(icon: Icons.person_outline, selectedIcon: Icons.person, label: 'Profile'),
+    NavEntry(
+      icon: Icons.grid_view_outlined,
+      selectedIcon: Icons.grid_view_rounded,
+      label: 'Dashboard',
+    ),
+    NavEntry(
+      icon: Icons.fitness_center_outlined,
+      selectedIcon: Icons.fitness_center,
+      label: 'Workouts',
+    ),
+    NavEntry(
+      icon: Icons.calculate_outlined,
+      selectedIcon: Icons.calculate,
+      label: 'Tools',
+    ),
+    NavEntry(
+      icon: Icons.person_outline,
+      selectedIcon: Icons.person,
+      label: 'Profile',
+    ),
   ];
 
   void _onSelect(int i) => setState(() => _index = i);
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMediumWindow) return _CompactScaffold(index: _index, onSelect: _onSelect);
+    if (!context.isMediumWindow)
+      return _CompactScaffold(index: _index, onSelect: _onSelect);
 
     return _SidebarScaffold(
       index: _index,
@@ -57,7 +75,7 @@ class _CompactScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: Stack(
         children: [
           IndexedStack(index: index, children: _RootScreenState._screens),
@@ -87,12 +105,16 @@ class _SidebarScaffold extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final bool extended;
 
-  const _SidebarScaffold({required this.index, required this.onSelect, required this.extended});
+  const _SidebarScaffold({
+    required this.index,
+    required this.onSelect,
+    required this.extended,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: Row(
         children: [
           NavigationRail(
@@ -100,12 +122,16 @@ class _SidebarScaffold extends StatelessWidget {
             onDestinationSelected: onSelect,
             extended: extended,
             minExtendedWidth: 220,
-            backgroundColor: Premium.surface,
-            indicatorColor: Premium.accentDim,
-            selectedIconTheme: const IconThemeData(color: Premium.accent),
-            unselectedIconTheme: const IconThemeData(color: Premium.textFaint),
-            selectedLabelTextStyle: Premium.body(13, weight: FontWeight.w600, color: Premium.text),
-            unselectedLabelTextStyle: Premium.body(13, color: Premium.textDim),
+            backgroundColor: context.colors.surface,
+            indicatorColor: context.colors.accentDim,
+            selectedIconTheme: IconThemeData(color: context.colors.accent),
+            unselectedIconTheme: IconThemeData(color: context.colors.textFaint),
+            selectedLabelTextStyle: Premium.body(context, 
+              13,
+              weight: FontWeight.w600,
+              color: context.colors.textPrimary,
+            ),
+            unselectedLabelTextStyle: Premium.body(context, 13, color: context.colors.textSecondary),
             leading: Padding(
               padding: EdgeInsets.symmetric(vertical: extended ? 16 : 12),
               child: extended
@@ -113,13 +139,16 @@ class _SidebarScaffold extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
                         children: [
-                          const Icon(Icons.fitness_center, color: Premium.accent),
+                          Icon(
+                            Icons.fitness_center,
+                            color: context.colors.accent,
+                          ),
                           const SizedBox(width: 12),
-                          Text('IronLog', style: Premium.heading(16)),
+                          Text('IronLog', style: Premium.heading(context, 16)),
                         ],
                       ),
                     )
-                  : const Icon(Icons.fitness_center, color: Premium.accent),
+                  : Icon(Icons.fitness_center, color: context.colors.accent),
             ),
             destinations: _RootScreenState._destinations
                 .map(
@@ -131,12 +160,17 @@ class _SidebarScaffold extends StatelessWidget {
                 )
                 .toList(),
           ),
-          VerticalDivider(width: 1, thickness: 1, color: Premium.border),
+          VerticalDivider(width: 1, thickness: 1, color: context.colors.border),
           Expanded(
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: extended ? 960 : double.infinity),
-                child: IndexedStack(index: index, children: _RootScreenState._screens),
+                constraints: BoxConstraints(
+                  maxWidth: extended ? 960 : double.infinity,
+                ),
+                child: IndexedStack(
+                  index: index,
+                  children: _RootScreenState._screens,
+                ),
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../models/workout.dart';
 import '../workouts/workout_detail_screen.dart';
@@ -50,7 +51,7 @@ class _WorkoutCalendarScreenState extends State<WorkoutCalendarScreen> {
     final selectedWorkouts = _selectedDay != null ? byDay[_selectedDay] ?? [] : <Workout>[];
 
     return Scaffold(
-      backgroundColor: Premium.bg,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -77,7 +78,7 @@ class _WorkoutCalendarScreenState extends State<WorkoutCalendarScreen> {
                     child: Center(
                       child: Text(
                         label,
-                        style: Premium.body(10, color: Premium.textFaint, weight: FontWeight.w700),
+                        style: Premium.body(context, 10, color: context.colors.textFaint, weight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -100,7 +101,7 @@ class _WorkoutCalendarScreenState extends State<WorkoutCalendarScreen> {
             ),
             const SizedBox(height: 22),
             if (_selectedDay != null) ...[
-              Text(DateFormat.yMMMd().format(_selectedDay!), style: Premium.heading(14)),
+              Text(DateFormat.yMMMd().format(_selectedDay!), style: Premium.heading(context, 14)),
               const SizedBox(height: 12),
               for (final w in selectedWorkouts)
                 Padding(
@@ -118,7 +119,7 @@ class _WorkoutCalendarScreenState extends State<WorkoutCalendarScreen> {
                 child: Center(
                   child: Text(
                     'Tap a highlighted day to see that workout.',
-                    style: Premium.body(12.5, color: Premium.textDim),
+                    style: Premium.body(context, 12.5, color: context.colors.textSecondary),
                   ),
                 ),
               ),
@@ -150,16 +151,16 @@ class _ScreenHeader extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: Premium.surface2,
+                  color: context.colors.cardBackground,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Premium.border),
+                  border: Border.all(color: context.colors.border),
                 ),
-                child: const Icon(Icons.arrow_back, size: 16, color: Premium.textDim),
+                child: Icon(Icons.arrow_back, size: 16, color: context.colors.textSecondary),
               ),
             ),
           ),
           const SizedBox(width: 14),
-          Text(title, style: Premium.heading(19)),
+          Text(title, style: Premium.heading(context, 19)),
         ],
       ),
     );
@@ -180,7 +181,7 @@ class _CalNav extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _NavButton(icon: Icons.chevron_left, onTap: onPrev),
-        Text(label, style: Premium.heading(15)),
+        Text(label, style: Premium.heading(context, 15)),
         _NavButton(icon: Icons.chevron_right, onTap: onNext),
       ],
     );
@@ -205,11 +206,11 @@ class _NavButton extends StatelessWidget {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: Premium.surface2,
+            color: context.colors.cardBackground,
             borderRadius: BorderRadius.circular(9),
-            border: Border.all(color: Premium.border),
+            border: Border.all(color: context.colors.border),
           ),
-          child: Icon(icon, size: 16, color: Premium.textDim),
+          child: Icon(icon, size: 16, color: context.colors.textSecondary),
         ),
       ),
     );
@@ -245,15 +246,15 @@ class _CalDay extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: isSelected ? Premium.accentGradient : null,
-              color: isSelected ? null : (hasWorkout ? Premium.accent.withValues(alpha: 0.12) : null),
-              boxShadow: isSelected ? Premium.accentGlowShadow(blur: 12, spread: -4) : null,
+              gradient: isSelected ? context.colors.accentGradient : null,
+              color: isSelected ? null : (hasWorkout ? context.colors.accent.withValues(alpha: 0.12) : null),
+              boxShadow: isSelected ? context.colors.accentGlowShadow(blur: 12, spread: -4) : null,
             ),
             child: Text(
               '$day',
-              style: Premium.body(
+              style: Premium.body(context, 
                 12.5,
-                color: isSelected ? Premium.ink : (hasWorkout ? Premium.text : Premium.textDim),
+                color: isSelected ? context.colors.onAccent : (hasWorkout ? context.colors.textPrimary : context.colors.textSecondary),
                 weight: isSelected ? FontWeight.w700 : (hasWorkout ? FontWeight.w600 : FontWeight.w500),
               ),
             ),
@@ -282,8 +283,8 @@ class _LastWorkoutRow extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: Premium.cardGradient,
-            border: Border.all(color: Premium.border),
+            gradient: context.colors.cardGradient,
+            border: Border.all(color: context.colors.border),
             borderRadius: BorderRadius.circular(17),
           ),
           child: Row(
@@ -292,27 +293,27 @@ class _LastWorkoutRow extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  gradient: Premium.accentGradient,
+                  gradient: context.colors.accentGradient,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: Premium.accentGlowShadow(),
+                  boxShadow: context.colors.accentGlowShadow(),
                 ),
-                child: Icon(Icons.fitness_center, size: 19, color: Premium.ink),
+                child: Icon(Icons.fitness_center, size: 19, color: context.colors.onAccent),
               ),
               const SizedBox(width: 13),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(workout.name, style: Premium.heading(14.5, weight: FontWeight.w600)),
+                    Text(workout.name, style: Premium.heading(context, 14.5, weight: FontWeight.w600)),
                     const SizedBox(height: 2),
                     Text(
                       '${workout.totalSets} sets · ${workout.totalVolume.toStringAsFixed(0)} kg',
-                      style: Premium.body(12, color: Premium.textDim),
+                      style: Premium.body(context, 12, color: context.colors.textSecondary),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, size: 20, color: Premium.textFaint),
+              Icon(Icons.chevron_right, size: 20, color: context.colors.textFaint),
             ],
           ),
         ),

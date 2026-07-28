@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../data/body_profile_store.dart';
 import '../../utils/health_formulas.dart';
@@ -46,7 +47,7 @@ class _IdealWeightCalculatorScreenState extends State<IdealWeightCalculatorScree
           padding: const EdgeInsets.only(bottom: 22),
           child: Row(
             children: [
-              Text('Unit', style: Premium.body(13.5, weight: FontWeight.w600, color: Premium.text)),
+              Text('Unit', style: Premium.body(context, 13.5, weight: FontWeight.w600, color: context.colors.textPrimary)),
               const Spacer(),
               PremiumUnitPill(label: 'KG', selected: !_lbs, onTap: () => setState(() => _lbs = false)),
               const SizedBox(width: 6),

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 import 'premium_theme.dart';
 
 /// Base card shell used everywhere in the premium spec: diagonal
@@ -28,9 +29,9 @@ class PremiumCard extends StatelessWidget {
     final card = Container(
       padding: padding,
       decoration: BoxDecoration(
-        gradient: gradient ?? Premium.cardGradient,
+        gradient: gradient ?? context.colors.cardGradient,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: borderColor ?? Premium.border),
+        border: Border.all(color: borderColor ?? context.colors.border),
         boxShadow: Premium.cardShadow,
       ),
       child: child,
@@ -48,7 +49,7 @@ class PremiumCard extends StatelessWidget {
   }
 }
 
-/// A pill-shaped chip filled with [Premium.accentGradient] — the spec's
+/// A pill-shaped chip filled with [context.colors.accentGradient] — the spec's
 /// primary-action styling (Finish button, Start Run, active tab, etc).
 class PremiumGradientButton extends StatelessWidget {
   final String label;
@@ -77,20 +78,20 @@ class PremiumGradientButton extends StatelessWidget {
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            gradient: Premium.accentGradient,
+            gradient: context.colors.accentGradient,
             borderRadius: BorderRadius.circular(radius),
-            boxShadow: Premium.accentGlowShadow(),
+            boxShadow: context.colors.accentGlowShadow(),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 15, color: Premium.ink),
+                Icon(icon, size: 15, color: context.colors.onAccent),
                 const SizedBox(width: 6),
               ],
               Text(
                 label,
-                style: Premium.heading(13, weight: FontWeight.w700, color: Premium.ink),
+                style: Premium.heading(context, 13, weight: FontWeight.w700, color: context.colors.onAccent),
               ),
             ],
           ),
@@ -117,12 +118,12 @@ class PremiumIconChip extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Premium.accentDim, Premium.accent.withValues(alpha: 0.05)],
+          colors: [context.colors.accentDim, context.colors.accent.withValues(alpha: 0.05)],
         ),
         borderRadius: BorderRadius.circular(size * 0.31),
-        border: Border.all(color: Premium.accent.withValues(alpha: 0.18)),
+        border: Border.all(color: context.colors.accent.withValues(alpha: 0.18)),
       ),
-      child: Icon(icon, size: size * 0.5, color: Premium.accent),
+      child: Icon(icon, size: size * 0.5, color: context.colors.accent),
     );
   }
 }
@@ -155,9 +156,9 @@ class PillNavBar extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: Premium.surface2.withValues(alpha: 0.72),
+              color: context.colors.cardBackground.withValues(alpha: 0.72),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Premium.borderStrong),
+              border: Border.all(color: context.colors.borderStrong),
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -177,9 +178,9 @@ class PillNavBar extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [Premium.accent.withValues(alpha: 0.18), Premium.accent.withValues(alpha: 0.06)],
+                            colors: [context.colors.accent.withValues(alpha: 0.18), context.colors.accent.withValues(alpha: 0.06)],
                           ),
-                          border: Border.all(color: Premium.accent.withValues(alpha: 0.22)),
+                          border: Border.all(color: context.colors.accent.withValues(alpha: 0.22)),
                           borderRadius: BorderRadius.circular(18),
                         ),
                       ),
@@ -199,15 +200,15 @@ class PillNavBar extends StatelessWidget {
                                     Icon(
                                       i == index ? entries[i].selectedIcon : entries[i].icon,
                                       size: 19,
-                                      color: i == index ? Premium.accent : Premium.textFaint,
+                                      color: i == index ? context.colors.accent : context.colors.textFaint,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       entries[i].label,
-                                      style: Premium.body(
+                                      style: Premium.body(context, 
                                         10,
                                         weight: i == index ? FontWeight.w600 : FontWeight.w500,
-                                        color: i == index ? Premium.accent : Premium.textFaint,
+                                        color: i == index ? context.colors.accent : context.colors.textFaint,
                                       ),
                                     ),
                                   ],
@@ -258,9 +259,9 @@ class _LivePulseDotState extends State<LivePulseDot> with SingleTickerProviderSt
           height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Premium.liveRed.withValues(alpha: 1 - t * 0.5),
+            color: context.colors.danger.withValues(alpha: 1 - t * 0.5),
             boxShadow: [
-              BoxShadow(color: Premium.liveRed.withValues(alpha: (1 - t) * 0.5), blurRadius: 5 * t, spreadRadius: 5 * t),
+              BoxShadow(color: context.colors.danger.withValues(alpha: (1 - t) * 0.5), blurRadius: 5 * t, spreadRadius: 5 * t),
             ],
           ),
         );

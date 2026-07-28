@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/premium_theme.dart';
+import '../../core/app_colors.dart';
 import '../../data/body_profile_store.dart';
 import '../../utils/health_formulas.dart';
 import 'premium_tool_widgets.dart';
@@ -29,12 +29,27 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> {
 
     return ToolScreenScaffold(
       title: 'BMI Calculator',
-      description: const PremiumScDesc(
+      description: PremiumScDesc(
         spans: [
-          TextSpan(text: 'Body mass index (BMI) is a measure of body fat based on your weight in relation to your height.\n'),
-          TextSpan(text: 'Standard Formula: ', style: TextStyle(color: Premium.textFaint, fontWeight: FontWeight.w600)),
+          TextSpan(
+            text:
+                'Body mass index (BMI) is a measure of body fat based on your weight in relation to your height.\n',
+          ),
+          TextSpan(
+            text: 'Standard Formula: ',
+            style: TextStyle(
+              color: context.colors.textFaint,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           TextSpan(text: 'Traditional method.\n'),
-          TextSpan(text: 'New Formula: ', style: TextStyle(color: Premium.textFaint, fontWeight: FontWeight.w600)),
+          TextSpan(
+            text: 'New Formula: ',
+            style: TextStyle(
+              color: context.colors.textFaint,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           TextSpan(text: 'More accurate recent method.'),
         ],
       ),
@@ -65,7 +80,11 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> {
         PremiumCatList(
           rows: [
             for (final c in HealthFormulas.bmiCategories)
-              PremiumCatRowData(label: c.$1, value: _rangeLabel(c.$2, c.$3), active: c.$1 == category),
+              PremiumCatRowData(
+                label: c.$1,
+                value: _rangeLabel(c.$2, c.$3),
+                active: c.$1 == category,
+              ),
           ],
         ),
         PremiumInfoBanner(text: HealthFormulas.bmiAdvice(result.bmi)),
@@ -120,7 +139,8 @@ class _BmiWeightConverterState extends State<_BmiWeightConverter> {
   @override
   void didUpdateWidget(covariant _BmiWeightConverter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.heightCm != widget.heightCm || oldWidget.useNewFormula != widget.useNewFormula) {
+    if (oldWidget.heightCm != widget.heightCm ||
+        oldWidget.useNewFormula != widget.useNewFormula) {
       // Height or formula changed: keep the target BMI fixed, recompute the weight for it.
       _syncWeightFromBmi();
     }
