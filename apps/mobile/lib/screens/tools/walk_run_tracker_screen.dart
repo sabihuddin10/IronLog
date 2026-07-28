@@ -26,16 +26,36 @@ class WalkRunTrackerScreen extends StatefulWidget {
 
 class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
   _ViewState _viewState = _ViewState.preStart;
-  ActiveWalkSession? _session;
   DateTime? _startedAt;
   double _strideLengthMeters = 0;
   double _weightKg = 0;
   double _bmrValue = 0;
-  Timer? _ticker;
-  StreamSubscription<AccelerometerEvent>? _stepSub;
   bool _saving = false;
   bool _paused = false;
   late Future<List<WalkSession>> _historyFuture;
+
+  // Mirrors whatever is producing live stats — the foreground task isolate
+  // on Android/iOS (see `walk_foreground_task.dart`), or `_localSession`
+  // directly in this isolate — so the rest of this class (and
+  // `_buildLive`) only ever needs to read these.
+  int _steps = 0;
+  double _distanceMeters = 0;
+  Duration _elapsed = Duration.zero;
+  double _calories = 0;
+
+  // Sensing runs in this isolate directly in two cases: always on web
+  // (`flutter_foreground_task` has no web platform implementation, so
+  // there's no task isolate to move it into), and as a same-isolate
+  // fallback on Android/iOS if the foreground service fails to start for
+  // any reason (permission denied, OS/manufacturer restriction, etc.) — see
+  // `_startTaskTracking`. `_localSession != null` is what the rest of this
+  // class checks to know which mode is active, rather than checking
+  // `kIsWeb` directly.
+  ActiveWalkSession? _localSession;
+  StreamSubscription<AccelerometerEvent>? _localStepSub;
+  Timer? _localTicker;
+
+  Completer<void>? _finishCompleter;
 
   @override
   void initState() {
@@ -47,8 +67,8 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
   @override
   void dispose() {
     FlutterForegroundTask.removeTaskDataCallback(_handleTaskData);
-    _ticker?.cancel();
-    _stepSub?.cancel();
+    _localTicker?.cancel();
+    _localStepSub?.cancel();
     super.dispose();
   }
 
@@ -56,16 +76,33 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
     if (!mounted) return;
     if (data == WalkNotificationActions.togglePause) {
       _togglePause();
-    } else if (data == WalkNotificationActions.stop) {
+      return;
+    }
+    if (data == WalkNotificationActions.stop) {
       _finish();
+      return;
+    }
+    if (data is Map) {
+      _applyStats(data);
+      if (data['type'] == WalkTaskMessage.typeFinalStats) {
+        _finishCompleter?.complete();
+      }
     }
   }
 
+  void _applyStats(Map data) {
+    setState(() {
+      _steps = data['steps'] as int;
+      _distanceMeters = (data['distanceMeters'] as num).toDouble();
+      _elapsed = Duration(milliseconds: data['elapsedMs'] as int);
+      _calories = (data['calories'] as num).toDouble();
+      _paused = data['paused'] as bool;
+    });
+  }
+
   String get _notificationText {
-    final session = _session;
-    if (session == null) return '';
-    final distanceKm = session.distanceMeters(_strideLengthMeters) / 1000;
-    return '$_durationLabel · ${session.steps} steps · ${distanceKm.toStringAsFixed(2)} km';
+    final distanceKm = _distanceMeters / 1000;
+    return '$_durationLabel · $_steps steps · ${distanceKm.toStringAsFixed(2)} km';
   }
 
   Future<void> _startForegroundNotification() async {
@@ -92,7 +129,7 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
   }
 
   String get _durationLabel {
-    final d = _session?.stopwatch.elapsed ?? Duration.zero;
+    final d = _elapsed;
     final h = d.inHours;
     final m = d.inMinutes % 60;
     final s = d.inSeconds % 60;
@@ -100,40 +137,36 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
-  double get _liveCalories {
-    final session = _session;
-    if (session == null) return 0;
-    final elapsedMinutes = session.stopwatch.elapsed.inMilliseconds / 60000;
-    if (elapsedMinutes <= 0) return 0;
-    final speedMetersPerMin = session.distanceMeters(_strideLengthMeters) / elapsedMinutes;
-    return HealthFormulas.totalWalkKcal(
-      weightKg: _weightKg,
-      speedMetersPerMin: speedMetersPerMin,
-      durationMinutes: elapsedMinutes,
-      bmrValue: _bmrValue,
+  void _togglePause() {
+    if (_localSession != null) {
+      _toggleLocalPause();
+      return;
+    }
+    final next = !_paused;
+    setState(() => _paused = next);
+    FlutterForegroundTask.sendDataToTask({
+      'cmd': next ? WalkTaskMessage.cmdPause : WalkTaskMessage.cmdResume,
+    });
+    FlutterForegroundTask.updateService(
+      notificationText: _notificationText,
+      notificationButtons: [
+        NotificationButton(id: WalkNotificationActions.togglePause, text: next ? 'Resume' : 'Pause'),
+        const NotificationButton(id: WalkNotificationActions.stop, text: 'Stop'),
+      ],
     );
   }
 
-  void _togglePause() {
-    final session = _session;
+  void _toggleLocalPause() {
+    final session = _localSession;
     if (session == null) return;
     if (_paused) {
-      _stepSub?.resume();
+      _localStepSub?.resume();
       session.stopwatch.start();
     } else {
-      _stepSub?.pause();
+      _localStepSub?.pause();
       session.stopwatch.stop();
     }
     setState(() => _paused = !_paused);
-    if (!kIsWeb) {
-      FlutterForegroundTask.updateService(
-        notificationText: _notificationText,
-        notificationButtons: [
-          NotificationButton(id: WalkNotificationActions.togglePause, text: _paused ? 'Resume' : 'Pause'),
-          const NotificationButton(id: WalkNotificationActions.stop, text: 'Stop'),
-        ],
-      );
-    }
   }
 
   void _startTracking() {
@@ -142,19 +175,60 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
     _weightKg = profile.weightKg;
     _bmrValue = HealthFormulas.bmr(profile.weightKg, profile.heightCm, profile.age, profile.gender);
     _startedAt = DateTime.now();
-    final session = ActiveWalkSession()..stopwatch.start();
-    _session = session;
+    _steps = 0;
+    _distanceMeters = 0;
+    _elapsed = Duration.zero;
+    _calories = 0;
+    _paused = false;
+
+    if (kIsWeb) {
+      _startLocalTracking();
+    } else {
+      _startTaskTracking();
+    }
+    setState(() => _viewState = _ViewState.live);
+  }
+
+  Future<void> _startTaskTracking() async {
+    // Written via saveData/getData (SharedPreferences-backed) rather than
+    // sendDataToTask — see the note on WalkTaskMessage for why sending it
+    // this way races the task isolate's own startup.
+    await FlutterForegroundTask.saveData(key: WalkTaskConfig.strideLengthMeters, value: _strideLengthMeters);
+    await FlutterForegroundTask.saveData(key: WalkTaskConfig.weightKg, value: _weightKg);
+    await FlutterForegroundTask.saveData(key: WalkTaskConfig.bmrValue, value: _bmrValue);
 
     try {
-      _stepSub = accelerometerEventStream(samplingPeriod: SensorInterval.gameInterval).listen(
+      await _startForegroundNotification();
+    } catch (_) {
+      // Handled uniformly by the isRunningService check below, whether
+      // starting the service threw or (as `_startForegroundNotification`
+      // does on denied permission) just returned early without starting it.
+    }
+
+    if (!mounted) return;
+    if (!await FlutterForegroundTask.isRunningService) {
+      // Foreground service didn't start — track locally in this isolate
+      // instead of leaving the screen with a dead timer and no steps. Loses
+      // the survives-backgrounding benefit in this case, but the feature
+      // still works.
+      _startLocalTracking();
+    }
+  }
+
+  void _startLocalTracking() {
+    final session = ActiveWalkSession()..stopwatch.start();
+    _localSession = session;
+
+    try {
+      _localStepSub = accelerometerEventStream(samplingPeriod: SensorInterval.gameInterval).listen(
         (event) {
           if (!mounted) return;
-          setState(() => session.addAccelerometerSample(event.x, event.y, event.z));
+          session.addAccelerometerSample(event.x, event.y, event.z);
+          _syncFromLocalSession();
         },
         onError: (_) {
           if (!mounted) return;
-          _ticker?.cancel();
-          if (!kIsWeb) FlutterForegroundTask.stopService();
+          _localTicker?.cancel();
           setState(() => _viewState = _ViewState.unavailable);
         },
       );
@@ -163,33 +237,64 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
       return;
     }
 
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+    _localTicker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
-      setState(() {});
-      if (!kIsWeb) FlutterForegroundTask.updateService(notificationText: _notificationText);
+      _syncFromLocalSession();
     });
-    setState(() => _viewState = _ViewState.live);
-    _startForegroundNotification();
+  }
+
+  void _syncFromLocalSession() {
+    final session = _localSession;
+    if (session == null) return;
+    final elapsedMinutes = session.stopwatch.elapsed.inMilliseconds / 60000;
+    final speedMetersPerMin =
+        elapsedMinutes > 0 ? session.distanceMeters(_strideLengthMeters) / elapsedMinutes : 0.0;
+    final calories = elapsedMinutes > 0
+        ? HealthFormulas.totalWalkKcal(
+            weightKg: _weightKg,
+            speedMetersPerMin: speedMetersPerMin,
+            durationMinutes: elapsedMinutes,
+            bmrValue: _bmrValue,
+          )
+        : 0.0;
+    setState(() {
+      _steps = session.steps;
+      _distanceMeters = session.distanceMeters(_strideLengthMeters);
+      _elapsed = session.stopwatch.elapsed;
+      _calories = calories;
+    });
   }
 
   Future<void> _finish() async {
-    final session = _session;
     final startedAt = _startedAt;
-    if (session == null || startedAt == null) return;
-
-    final calories = _liveCalories;
+    if (startedAt == null) return;
     setState(() => _saving = true);
-    _stepSub?.cancel();
-    _ticker?.cancel();
-    if (!kIsWeb) FlutterForegroundTask.stopService();
+
+    if (_localSession != null) {
+      _localStepSub?.cancel();
+      _localTicker?.cancel();
+    } else {
+      // The task isolate holds the authoritative step count, which may be a
+      // little ahead of the last periodic stats update — ask it for a final
+      // snapshot and wait for the reply before persisting, rather than
+      // trusting whatever's currently mirrored here.
+      final completer = Completer<void>();
+      _finishCompleter = completer;
+      FlutterForegroundTask.sendDataToTask({'cmd': WalkTaskMessage.cmdFinish});
+      await completer.future.timeout(const Duration(seconds: 3), onTimeout: () {});
+      _finishCompleter = null;
+      await FlutterForegroundTask.stopService();
+    }
+    if (!mounted) return;
+
     try {
       await context.read<WalkSessionRepository>().create(
-            steps: session.steps,
-            distanceMeters: session.distanceMeters(_strideLengthMeters),
-            duration: session.stopwatch.elapsed,
+            steps: _steps,
+            distanceMeters: _distanceMeters,
+            duration: _elapsed,
             startedAt: startedAt,
             strideLengthMeters: _strideLengthMeters,
-            calories: calories,
+            calories: _calories,
           );
       if (mounted) Navigator.of(context).pop(true);
     } finally {
@@ -211,9 +316,14 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
       ),
     );
     if (discard == true && mounted) {
-      _stepSub?.cancel();
-      _ticker?.cancel();
-      if (!kIsWeb) FlutterForegroundTask.stopService();
+      if (_localSession != null) {
+        _localStepSub?.cancel();
+        _localTicker?.cancel();
+      } else {
+        FlutterForegroundTask.sendDataToTask({'cmd': WalkTaskMessage.cmdDiscard});
+        await FlutterForegroundTask.stopService();
+      }
+      if (!mounted) return;
       Navigator.of(context).pop(false);
     }
   }
@@ -310,9 +420,9 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
   /// [ActiveWalkSession]/[HealthFormulas] calls the previous Material UI used
   /// — only the presentation changed.
   Widget _buildLive(BuildContext context) {
-    final session = _session!;
-    final speedKmh = session.speedMps(_strideLengthMeters) * 3.6;
-    final distanceKm = session.distanceMeters(_strideLengthMeters) / 1000;
+    final elapsedSeconds = _elapsed.inMilliseconds / 1000;
+    final speedKmh = elapsedSeconds > 0 ? (_distanceMeters / elapsedSeconds) * 3.6 : 0.0;
+    final distanceKm = _distanceMeters / 1000;
 
     return PopScope(
       canPop: false,
@@ -350,10 +460,10 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
               ],
               const SizedBox(height: 24),
               _StatsStrip(
-                steps: '${session.steps}',
+                steps: '$_steps',
                 distance: '${distanceKm.toStringAsFixed(2)} km',
                 speed: '${speedKmh.toStringAsFixed(1)} km/h',
-                calories: '${_liveCalories.toStringAsFixed(0)} kcal',
+                calories: '${_calories.toStringAsFixed(0)} kcal',
               ),
             ],
           ),

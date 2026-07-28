@@ -41,7 +41,13 @@ Future<void> main() async {
       ),
       iosNotificationOptions: const IOSNotificationOptions(),
       foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.nothing(),
+        // Drives `_WalkTaskHandler.onRepeatEvent`, which now owns the walk
+        // tracker's live stats/notification ticker (moved off the main
+        // isolate's Timer — see `walk_foreground_task.dart`). The workout
+        // session's task handler (`workout_foreground_task.dart`) shares
+        // this same global config but its `onRepeatEvent` is a no-op, so
+        // the extra tick is harmless there.
+        eventAction: ForegroundTaskEventAction.repeat(1000),
         autoRunOnBoot: false,
         allowWakeLock: true,
       ),
