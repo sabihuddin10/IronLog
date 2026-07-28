@@ -1,0 +1,61 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+build/
+
+# turbo
+.turbo/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# firebase
+*firebase-adminsdk*.json
+serviceAccountKey.json
+
+# flutter / dart
+apps/mobile/.dart_tool/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/.pub-cache/
+apps/mobile/.pub/
+apps/mobile/build/
+apps/mobile/android/.gradle/
+apps/mobile/android/local.properties
+apps/mobile/ios/Flutter/.last_build_id
+apps/mobile/ios/Flutter/ephemeral/
+apps/mobile/ios/Pods/
+apps/mobile/windows/flutter/ephemeral/
+apps/mobile/*.iml
+apps/mobile/android/*.iml
+
+# logs
+*.log
+npm-debug.log*
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# claude code (local-only overrides)
+.claude/settings.local.json
+
+# os
+.DS_Store
+Thumbs.db
+
+# misc
+*.tsbuildinfo
+
+# scratch / recordings / design exports at repo root
+/*.mp4
+/*.mov
+/app-redesign-*.html
+/conept.html

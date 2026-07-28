@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "808229759904",
+    "project_id": "myharmic-2",
+    "storage_bucket": "myharmic-2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808229759904:android:908a8295c924e5780912c5",
+        "android_client_info": {
+          "package_name": "com.weightmaster.ironlog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808229759904-m3jh7q8obtg663921mi1j0jk78fbs2co.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKUvrK8H1jZE3RdqnOeGDsWdM8-9yDeYI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808229759904-m3jh7q8obtg663921mi1j0jk78fbs2co.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

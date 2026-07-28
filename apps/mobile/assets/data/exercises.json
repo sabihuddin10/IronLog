@@ -1,0 +1,1188 @@
+[
+  {
+    "id": "ex-barbell-bench-press",
+    "name": "Barbell Bench Press",
+    "category": "chest",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "chest", "percentage": 60 },
+      { "muscle": "triceps", "percentage": 25 },
+      { "muscle": "shoulders", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-incline-dumbbell-press",
+    "name": "Incline Dumbbell Press",
+    "category": "chest",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "chest", "percentage": 55 },
+      { "muscle": "shoulders", "percentage": 30 },
+      { "muscle": "triceps", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-push-up",
+    "name": "Push-Up",
+    "category": "chest",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "chest", "percentage": 50 },
+      { "muscle": "triceps", "percentage": 30 },
+      { "muscle": "core", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-cable-fly",
+    "name": "Cable Fly",
+    "category": "chest",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "chest", "percentage": 80 },
+      { "muscle": "shoulders", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-arnold-press",
+    "name": "Arnold Press (Dumbbell)",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 70 },
+      { "muscle": "triceps", "percentage": 20 },
+      { "muscle": "chest", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-overhead-press",
+    "name": "Overhead Press",
+    "category": "shoulders",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 65 },
+      { "muscle": "triceps", "percentage": 25 },
+      { "muscle": "core", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-lateral-raise",
+    "name": "Lateral Raise",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 90 },
+      { "muscle": "back", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-face-pull",
+    "name": "Face Pull",
+    "category": "shoulders",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 60 },
+      { "muscle": "back", "percentage": 40 }
+    ]
+  },
+  {
+    "id": "ex-barbell-back-squat",
+    "name": "Barbell Back Squat",
+    "category": "legs",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 70 },
+      { "muscle": "glutes", "percentage": 25 },
+      { "muscle": "core", "percentage": 5 }
+    ]
+  },
+  {
+    "id": "ex-romanian-deadlift",
+    "name": "Romanian Deadlift",
+    "category": "legs",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 45 },
+      { "muscle": "glutes", "percentage": 40 },
+      { "muscle": "back", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-leg-press",
+    "name": "Leg Press",
+    "category": "legs",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "legs", "percentage": 75 },
+      { "muscle": "glutes", "percentage": 25 }
+    ]
+  },
+  {
+    "id": "ex-walking-lunge",
+    "name": "Walking Lunge",
+    "category": "legs",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 55 },
+      { "muscle": "glutes", "percentage": 35 },
+      { "muscle": "core", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-leg-curl",
+    "name": "Leg Curl",
+    "category": "legs",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "legs", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-calf-raise",
+    "name": "Standing Calf Raise",
+    "category": "legs",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "legs", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-conventional-deadlift",
+    "name": "Conventional Deadlift",
+    "category": "back",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "back", "percentage": 45 },
+      { "muscle": "legs", "percentage": 30 },
+      { "muscle": "glutes", "percentage": 25 }
+    ]
+  },
+  {
+    "id": "ex-pull-up",
+    "name": "Pull-Up",
+    "category": "back",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "back", "percentage": 70 },
+      { "muscle": "biceps", "percentage": 30 }
+    ]
+  },
+  {
+    "id": "ex-barbell-row",
+    "name": "Barbell Row",
+    "category": "back",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "back", "percentage": 65 },
+      { "muscle": "biceps", "percentage": 20 },
+      { "muscle": "shoulders", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-lat-pulldown",
+    "name": "Lat Pulldown",
+    "category": "back",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "back", "percentage": 75 },
+      { "muscle": "biceps", "percentage": 25 }
+    ]
+  },
+  {
+    "id": "ex-seated-cable-row",
+    "name": "Seated Cable Row",
+    "category": "back",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "back", "percentage": 70 },
+      { "muscle": "biceps", "percentage": 20 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-barbell-curl",
+    "name": "Barbell Curl",
+    "category": "biceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-hammer-curl",
+    "name": "Hammer Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 80 },
+      { "muscle": "triceps", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-preacher-curl",
+    "name": "Preacher Curl",
+    "category": "biceps",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-triceps-pushdown",
+    "name": "Triceps Pushdown",
+    "category": "triceps",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-close-grip-bench-press",
+    "name": "Close-Grip Bench Press",
+    "category": "triceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 55 },
+      { "muscle": "chest", "percentage": 35 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-overhead-triceps-extension",
+    "name": "Overhead Triceps Extension",
+    "category": "triceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-hip-thrust",
+    "name": "Hip Thrust",
+    "category": "glutes",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "glutes", "percentage": 75 },
+      { "muscle": "legs", "percentage": 25 }
+    ]
+  },
+  {
+    "id": "ex-cable-kickback",
+    "name": "Cable Kickback",
+    "category": "glutes",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "glutes", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-plank",
+    "name": "Plank",
+    "category": "core",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "core", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-hanging-leg-raise",
+    "name": "Hanging Leg Raise",
+    "category": "core",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "core", "percentage": 90 },
+      { "muscle": "legs", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-cable-crunch",
+    "name": "Cable Crunch",
+    "category": "core",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "core", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-treadmill-run",
+    "name": "Treadmill Run",
+    "category": "cardio",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "cardio", "percentage": 70 },
+      { "muscle": "legs", "percentage": 30 }
+    ]
+  },
+  {
+    "id": "ex-rowing-machine",
+    "name": "Rowing Machine",
+    "category": "cardio",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "cardio", "percentage": 55 },
+      { "muscle": "back", "percentage": 25 },
+      { "muscle": "legs", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-kettlebell-swing",
+    "name": "Kettlebell Swing",
+    "category": "full_body",
+    "equipment": "kettlebell",
+    "muscles": [
+      { "muscle": "glutes", "percentage": 35 },
+      { "muscle": "legs", "percentage": 25 },
+      { "muscle": "back", "percentage": 20 },
+      { "muscle": "core", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-burpee",
+    "name": "Burpee",
+    "category": "full_body",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "cardio", "percentage": 40 },
+      { "muscle": "chest", "percentage": 20 },
+      { "muscle": "legs", "percentage": 20 },
+      { "muscle": "core", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-incline-barbell-bench-press",
+    "name": "Incline Barbell Bench Press",
+    "category": "chest",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "chest", "percentage": 55 },
+      { "muscle": "shoulders", "percentage": 30 },
+      { "muscle": "triceps", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-decline-barbell-bench-press",
+    "name": "Decline Barbell Bench Press",
+    "category": "chest",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "chest", "percentage": 65 },
+      { "muscle": "triceps", "percentage": 25 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-flat-dumbbell-press",
+    "name": "Flat Dumbbell Press",
+    "category": "chest",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "chest", "percentage": 60 },
+      { "muscle": "shoulders", "percentage": 25 },
+      { "muscle": "triceps", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-decline-dumbbell-press",
+    "name": "Decline Dumbbell Press",
+    "category": "chest",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "chest", "percentage": 65 },
+      { "muscle": "triceps", "percentage": 20 },
+      { "muscle": "shoulders", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-fly",
+    "name": "Dumbbell Fly",
+    "category": "chest",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "chest", "percentage": 85 },
+      { "muscle": "shoulders", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-low-to-high-cable-fly",
+    "name": "Low-to-High Cable Fly",
+    "category": "chest",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "chest", "percentage": 75 },
+      { "muscle": "shoulders", "percentage": 25 }
+    ]
+  },
+  {
+    "id": "ex-high-to-low-cable-fly",
+    "name": "High-to-Low Cable Fly",
+    "category": "chest",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "chest", "percentage": 80 },
+      { "muscle": "shoulders", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-machine-chest-press",
+    "name": "Machine Chest Press",
+    "category": "chest",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "chest", "percentage": 60 },
+      { "muscle": "shoulders", "percentage": 25 },
+      { "muscle": "triceps", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-pec-deck",
+    "name": "Pec Deck",
+    "category": "chest",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "chest", "percentage": 90 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-weighted-dip",
+    "name": "Weighted Dip",
+    "category": "chest",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "chest", "percentage": 45 },
+      { "muscle": "triceps", "percentage": 40 },
+      { "muscle": "shoulders", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-landmine-press",
+    "name": "Landmine Press",
+    "category": "chest",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 45 },
+      { "muscle": "chest", "percentage": 40 },
+      { "muscle": "triceps", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-curl",
+    "name": "Dumbbell Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-incline-dumbbell-curl",
+    "name": "Incline Dumbbell Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-ez-bar-curl",
+    "name": "EZ-Bar Curl",
+    "category": "biceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-concentration-curl",
+    "name": "Concentration Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-spider-curl",
+    "name": "Spider Curl",
+    "category": "biceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-cable-curl",
+    "name": "Cable Curl",
+    "category": "biceps",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-cross-body-hammer-curl",
+    "name": "Cross-Body Hammer Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-reverse-grip-barbell-curl",
+    "name": "Reverse-Grip Barbell Curl",
+    "category": "biceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-drag-curl",
+    "name": "Drag Curl",
+    "category": "biceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-zottman-curl",
+    "name": "Zottman Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-barbell-21s",
+    "name": "Barbell 21s",
+    "category": "biceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-ez-bar-skull-crusher",
+    "name": "EZ-Bar Skull Crusher",
+    "category": "triceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-skull-crusher",
+    "name": "Dumbbell Skull Crusher",
+    "category": "triceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-overhead-cable-triceps-extension",
+    "name": "Overhead Cable Triceps Extension",
+    "category": "triceps",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-rope-triceps-pushdown",
+    "name": "Rope Triceps Pushdown",
+    "category": "triceps",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-reverse-grip-triceps-pushdown",
+    "name": "Reverse-Grip Triceps Pushdown",
+    "category": "triceps",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-triceps-kickback",
+    "name": "Triceps Kickback",
+    "category": "triceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-diamond-push-up",
+    "name": "Diamond Push-Up",
+    "category": "triceps",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 60 },
+      { "muscle": "chest", "percentage": 30 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-bench-dip",
+    "name": "Bench Dip",
+    "category": "triceps",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 70 },
+      { "muscle": "chest", "percentage": 20 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-jm-press",
+    "name": "JM Press",
+    "category": "triceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 80 },
+      { "muscle": "chest", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-single-arm-cable-triceps-extension",
+    "name": "Single-Arm Cable Triceps Extension",
+    "category": "triceps",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-front-raise",
+    "name": "Dumbbell Front Raise",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-barbell-front-raise",
+    "name": "Barbell Front Raise",
+    "category": "shoulders",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-cable-lateral-raise",
+    "name": "Cable Lateral Raise",
+    "category": "shoulders",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-machine-lateral-raise",
+    "name": "Machine Lateral Raise",
+    "category": "shoulders",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-upright-row",
+    "name": "Upright Row",
+    "category": "shoulders",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 60 },
+      { "muscle": "back", "percentage": 40 }
+    ]
+  },
+  {
+    "id": "ex-y-raise",
+    "name": "Y-Raise",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 80 },
+      { "muscle": "back", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-reverse-pec-deck",
+    "name": "Reverse Pec Deck",
+    "category": "shoulders",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 70 },
+      { "muscle": "back", "percentage": 30 }
+    ]
+  },
+  {
+    "id": "ex-bent-over-reverse-fly",
+    "name": "Bent-Over Dumbbell Reverse Fly",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 70 },
+      { "muscle": "back", "percentage": 30 }
+    ]
+  },
+  {
+    "id": "ex-cable-reverse-fly",
+    "name": "Cable Reverse Fly",
+    "category": "shoulders",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 70 },
+      { "muscle": "back", "percentage": 30 }
+    ]
+  },
+  {
+    "id": "ex-rear-delt-row",
+    "name": "Rear Delt Row",
+    "category": "shoulders",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 55 },
+      { "muscle": "back", "percentage": 45 }
+    ]
+  },
+  {
+    "id": "ex-cuban-press",
+    "name": "Cuban Press",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 80 },
+      { "muscle": "back", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-shoulder-press",
+    "name": "Dumbbell Shoulder Press",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 70 },
+      { "muscle": "triceps", "percentage": 20 },
+      { "muscle": "core", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-upright-row",
+    "name": "Dumbbell Upright Row",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 60 },
+      { "muscle": "back", "percentage": 40 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-rear-delt-row",
+    "name": "Dumbbell Rear Delt Row",
+    "category": "shoulders",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 55 },
+      { "muscle": "back", "percentage": 45 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-preacher-curl",
+    "name": "Dumbbell Preacher Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-spider-curl",
+    "name": "Dumbbell Spider Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-reverse-grip-dumbbell-curl",
+    "name": "Reverse-Grip Dumbbell Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-drag-curl",
+    "name": "Dumbbell Drag Curl",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-dumbbell-21s",
+    "name": "Dumbbell 21s",
+    "category": "biceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-cable-rope-hammer-curl",
+    "name": "Cable Rope Hammer Curl",
+    "category": "biceps",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "biceps", "percentage": 80 },
+      { "muscle": "triceps", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-close-grip-dumbbell-press",
+    "name": "Close-Grip Dumbbell Press",
+    "category": "triceps",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 55 },
+      { "muscle": "chest", "percentage": 35 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-barbell-overhead-triceps-extension",
+    "name": "Barbell Overhead Triceps Extension",
+    "category": "triceps",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-cable-triceps-kickback",
+    "name": "Cable Triceps Kickback",
+    "category": "triceps",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "triceps", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-t-bar-row",
+    "name": "T-Bar Row",
+    "category": "back",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "back", "percentage": 70 },
+      { "muscle": "biceps", "percentage": 20 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-chest-supported-row",
+    "name": "Chest-Supported Row",
+    "category": "back",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "back", "percentage": 70 },
+      { "muscle": "biceps", "percentage": 20 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-single-arm-dumbbell-row",
+    "name": "Single-Arm Dumbbell Row",
+    "category": "back",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "back", "percentage": 65 },
+      { "muscle": "biceps", "percentage": 25 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-wide-grip-lat-pulldown",
+    "name": "Wide-Grip Lat Pulldown",
+    "category": "back",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "back", "percentage": 75 },
+      { "muscle": "biceps", "percentage": 25 }
+    ]
+  },
+  {
+    "id": "ex-straight-arm-pulldown",
+    "name": "Straight-Arm Pulldown",
+    "category": "back",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "back", "percentage": 90 },
+      { "muscle": "shoulders", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-sumo-deadlift",
+    "name": "Sumo Deadlift",
+    "category": "back",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 40 },
+      { "muscle": "back", "percentage": 30 },
+      { "muscle": "glutes", "percentage": 30 }
+    ]
+  },
+  {
+    "id": "ex-rack-pull",
+    "name": "Rack Pull",
+    "category": "back",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "back", "percentage": 55 },
+      { "muscle": "legs", "percentage": 25 },
+      { "muscle": "glutes", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-chin-up",
+    "name": "Chin-Up",
+    "category": "back",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "back", "percentage": 60 },
+      { "muscle": "biceps", "percentage": 40 }
+    ]
+  },
+  {
+    "id": "ex-front-squat",
+    "name": "Front Squat",
+    "category": "legs",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 70 },
+      { "muscle": "glutes", "percentage": 20 },
+      { "muscle": "core", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-hack-squat",
+    "name": "Hack Squat",
+    "category": "legs",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "legs", "percentage": 75 },
+      { "muscle": "glutes", "percentage": 25 }
+    ]
+  },
+  {
+    "id": "ex-bulgarian-split-squat",
+    "name": "Bulgarian Split Squat",
+    "category": "legs",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 60 },
+      { "muscle": "glutes", "percentage": 35 },
+      { "muscle": "core", "percentage": 5 }
+    ]
+  },
+  {
+    "id": "ex-leg-extension",
+    "name": "Leg Extension",
+    "category": "legs",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "legs", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-goblet-squat",
+    "name": "Goblet Squat",
+    "category": "legs",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 65 },
+      { "muscle": "glutes", "percentage": 30 },
+      { "muscle": "core", "percentage": 5 }
+    ]
+  },
+  {
+    "id": "ex-seated-calf-raise",
+    "name": "Seated Calf Raise",
+    "category": "legs",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "legs", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-hip-adduction-machine",
+    "name": "Hip Adduction Machine",
+    "category": "legs",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "legs", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-step-up",
+    "name": "Step-Up",
+    "category": "legs",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 60 },
+      { "muscle": "glutes", "percentage": 35 },
+      { "muscle": "core", "percentage": 5 }
+    ]
+  },
+  {
+    "id": "ex-barbell-glute-bridge",
+    "name": "Barbell Glute Bridge",
+    "category": "glutes",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "glutes", "percentage": 80 },
+      { "muscle": "legs", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-single-leg-hip-thrust",
+    "name": "Single-Leg Hip Thrust",
+    "category": "glutes",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "glutes", "percentage": 85 },
+      { "muscle": "legs", "percentage": 15 }
+    ]
+  },
+  {
+    "id": "ex-cable-pull-through",
+    "name": "Cable Pull-Through",
+    "category": "glutes",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "glutes", "percentage": 70 },
+      { "muscle": "legs", "percentage": 30 }
+    ]
+  },
+  {
+    "id": "ex-cable-donkey-kick",
+    "name": "Cable Donkey Kick",
+    "category": "glutes",
+    "equipment": "cable",
+    "muscles": [
+      { "muscle": "glutes", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-ab-wheel-rollout",
+    "name": "Ab Wheel Rollout",
+    "category": "core",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "core", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-russian-twist",
+    "name": "Russian Twist",
+    "category": "core",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "core", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-weighted-sit-up",
+    "name": "Weighted Sit-Up",
+    "category": "core",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "core", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-hollow-body-hold",
+    "name": "Hollow Body Hold",
+    "category": "core",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "core", "percentage": 100 }
+    ]
+  },
+  {
+    "id": "ex-stationary-bike",
+    "name": "Stationary Bike",
+    "category": "cardio",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "cardio", "percentage": 80 },
+      { "muscle": "legs", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-stair-climber",
+    "name": "Stair Climber",
+    "category": "cardio",
+    "equipment": "machine",
+    "muscles": [
+      { "muscle": "cardio", "percentage": 60 },
+      { "muscle": "legs", "percentage": 40 }
+    ]
+  },
+  {
+    "id": "ex-jump-rope",
+    "name": "Jump Rope",
+    "category": "cardio",
+    "equipment": "bodyweight",
+    "muscles": [
+      { "muscle": "cardio", "percentage": 90 },
+      { "muscle": "legs", "percentage": 10 }
+    ]
+  },
+  {
+    "id": "ex-clean-and-press",
+    "name": "Clean and Press",
+    "category": "full_body",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "shoulders", "percentage": 30 },
+      { "muscle": "legs", "percentage": 30 },
+      { "muscle": "back", "percentage": 20 },
+      { "muscle": "core", "percentage": 20 }
+    ]
+  },
+  {
+    "id": "ex-thruster",
+    "name": "Thruster",
+    "category": "full_body",
+    "equipment": "barbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 40 },
+      { "muscle": "shoulders", "percentage": 35 },
+      { "muscle": "core", "percentage": 25 }
+    ]
+  },
+  {
+    "id": "ex-man-maker",
+    "name": "Man Maker",
+    "category": "full_body",
+    "equipment": "dumbbell",
+    "muscles": [
+      { "muscle": "legs", "percentage": 30 },
+      { "muscle": "chest", "percentage": 25 },
+      { "muscle": "back", "percentage": 20 },
+      { "muscle": "core", "percentage": 25 }
+    ]
+  }
+]
