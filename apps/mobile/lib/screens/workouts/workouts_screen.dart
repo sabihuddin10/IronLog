@@ -24,12 +24,30 @@ class WorkoutsScreen extends StatefulWidget {
 class _WorkoutsScreenState extends State<WorkoutsScreen> {
   late Future<List<Workout>> _future;
   late Future<List<WorkoutTemplate>> _templatesFuture;
+  late final ActiveWorkoutSession _session;
+  bool _sessionWasActive = false;
 
   @override
   void initState() {
     super.initState();
     _load();
     _loadTemplates();
+    _session = context.read<ActiveWorkoutSession>();
+    _sessionWasActive = _session.isActive;
+    _session.addListener(_onSessionChanged);
+  }
+
+  @override
+  void dispose() {
+    _session.removeListener(_onSessionChanged);
+    super.dispose();
+  }
+
+  // This tab stays alive (never disposed) in RootScreen's IndexedStack, so
+  // finishing a workout from another tab wouldn't otherwise refetch it.
+  void _onSessionChanged() {
+    if (_sessionWasActive && !_session.isActive) _refresh();
+    _sessionWasActive = _session.isActive;
   }
 
   void _load() {

@@ -19,11 +19,32 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late Future<DashboardStats> _future;
+  late final ActiveWorkoutSession _session;
+  bool _sessionWasActive = false;
 
   @override
   void initState() {
     super.initState();
     _future = context.read<DashboardRepository>().fetch();
+    _session = context.read<ActiveWorkoutSession>();
+    _sessionWasActive = _session.isActive;
+    _session.addListener(_onSessionChanged);
+  }
+
+  @override
+  void dispose() {
+    _session.removeListener(_onSessionChanged);
+    super.dispose();
+  }
+
+  // The dashboard tab stays alive (never disposed) in RootScreen's
+  // IndexedStack, so it won't naturally refetch when a workout is logged
+  // from another tab. ActiveWorkoutSession.finish() calls notifyListeners()
+  // right after saving, so refreshing on the active -> inactive transition
+  // keeps stats current without the user having to pull-to-refresh.
+  void _onSessionChanged() {
+    if (_sessionWasActive && !_session.isActive) _refresh();
+    _sessionWasActive = _session.isActive;
   }
 
   void _refresh() {

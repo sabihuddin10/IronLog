@@ -12,6 +12,7 @@ import '../../models/workout.dart';
 import '../../repositories/workout_repository.dart';
 import '../exercises/exercise_library_screen.dart';
 import '../tools/weight_tracker_screen.dart';
+import '../workouts/active_workout_session.dart';
 import '../workouts/workout_detail_screen.dart';
 import 'statistics_screen.dart';
 import 'theme_settings_screen.dart';
@@ -44,6 +45,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late Future<List<Workout>> _future;
+  late final ActiveWorkoutSession _session;
+  bool _sessionWasActive = false;
   _Metric _metric = _Metric.volume;
   _Period _period = _Period.threeMonths;
 
@@ -51,6 +54,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _future = context.read<WorkoutRepository>().list();
+    _session = context.read<ActiveWorkoutSession>();
+    _sessionWasActive = _session.isActive;
+    _session.addListener(_onSessionChanged);
+  }
+
+  @override
+  void dispose() {
+    _session.removeListener(_onSessionChanged);
+    super.dispose();
+  }
+
+  // This tab stays alive (never disposed) in RootScreen's IndexedStack, so
+  // finishing a workout from another tab wouldn't otherwise refetch it.
+  void _onSessionChanged() {
+    if (_sessionWasActive && !_session.isActive) _refresh();
+    _sessionWasActive = _session.isActive;
   }
 
   Future<void> _refresh() async {
