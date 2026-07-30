@@ -172,7 +172,17 @@ class Premium {
       splashColor: accent.withValues(alpha: 0.12),
       highlightColor: accent.withValues(alpha: 0.08),
       extensions: [tokens],
-      appBarTheme: AppBarTheme(backgroundColor: neutrals.bg, foregroundColor: neutrals.text, elevation: 0),
+      appBarTheme: AppBarTheme(
+        backgroundColor: neutrals.bg,
+        foregroundColor: neutrals.text,
+        elevation: 0,
+        titleTextStyle: GoogleFonts.spaceGrotesk(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: neutrals.text,
+          letterSpacing: -0.3,
+        ),
+      ),
       iconTheme: IconThemeData(color: neutrals.text),
       cardTheme: CardThemeData(
         elevation: 0,

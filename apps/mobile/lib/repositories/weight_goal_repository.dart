@@ -67,4 +67,16 @@ class WeightGoalRepository {
       await _local.remove(id);
     }
   }
+
+  /// Inserts or overwrites a goal by its own id — used by CSV import to
+  /// restore a full [WeightGoal] as-is. Unlike [update]/[markAchieved],
+  /// this doesn't route through [_mutate] (which expects the record to
+  /// already exist) — it writes the given object directly, insert-or-replace.
+  Future<void> upsert(WeightGoal goal) async {
+    if (AppConfig.storeOnCloud) {
+      await _collection.doc(goal.id).set(goal.toJson());
+    } else {
+      await _local.replace(goal);
+    }
+  }
 }

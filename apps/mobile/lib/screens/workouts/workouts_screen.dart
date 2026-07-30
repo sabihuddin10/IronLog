@@ -5,11 +5,12 @@ import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../core/responsive.dart';
+import '../../data/workouts_store.dart';
 import '../../models/workout.dart';
 import '../../models/workout_template.dart';
-import '../../repositories/workout_repository.dart';
 import '../../repositories/workout_template_repository.dart';
 import 'active_workout_session.dart';
+import 'edit_workout_screen.dart';
 import 'log_workout_screen.dart';
 import 'preset_builder_screen.dart';
 import 'workout_detail_screen.dart';
@@ -22,36 +23,13 @@ class WorkoutsScreen extends StatefulWidget {
 }
 
 class _WorkoutsScreenState extends State<WorkoutsScreen> {
-  late Future<List<Workout>> _future;
   late Future<List<WorkoutTemplate>> _templatesFuture;
-  late final ActiveWorkoutSession _session;
-  bool _sessionWasActive = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    context.read<WorkoutsStore>().ensureLoaded();
     _loadTemplates();
-    _session = context.read<ActiveWorkoutSession>();
-    _sessionWasActive = _session.isActive;
-    _session.addListener(_onSessionChanged);
-  }
-
-  @override
-  void dispose() {
-    _session.removeListener(_onSessionChanged);
-    super.dispose();
-  }
-
-  // This tab stays alive (never disposed) in RootScreen's IndexedStack, so
-  // finishing a workout from another tab wouldn't otherwise refetch it.
-  void _onSessionChanged() {
-    if (_sessionWasActive && !_session.isActive) _refresh();
-    _sessionWasActive = _session.isActive;
-  }
-
-  void _load() {
-    _future = context.read<WorkoutRepository>().list();
   }
 
   void _loadTemplates() {
@@ -59,11 +37,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   }
 
   Future<void> _refresh() async {
-    setState(() {
-      _load();
-      _loadTemplates();
-    });
-    await Future.wait([_future, _templatesFuture]);
+    await context.read<WorkoutsStore>().refresh();
+    if (mounted) setState(_loadTemplates);
+    await _templatesFuture;
   }
 
   Future<void> _createPreset() async {
@@ -100,6 +76,44 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     if (confirmed != true) return;
     await repository.delete(template.id);
     if (mounted) setState(_loadTemplates);
+  }
+
+  Future<void> _deleteWorkout(Workout workout) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: context.colors.cardBackground,
+        title: Text('Delete "${workout.name}"?', style: Premium.heading(context, 16)),
+        content: Text(
+          'This workout will be permanently removed.',
+          style: Premium.body(context, 13, color: context.colors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel', style: Premium.body(context, 13, weight: FontWeight.w600, color: context.colors.textSecondary)),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFFF6B5C), foregroundColor: Colors.white),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    // WorkoutsStore.delete notifies its own listeners — every screen
+    // watching it (including this one) rebuilds automatically, so there's
+    // no manual refresh to trigger here.
+    await context.read<WorkoutsStore>().delete(workout.id);
+  }
+
+  Future<void> _editWorkout(Workout workout) async {
+    // EditWorkoutScreen saves through WorkoutsStore too, so this screen is
+    // already showing the update by the time the push resolves.
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => EditWorkoutScreen(workout: workout)),
+    );
   }
 
   /// Asks whether the workout about to be logged is happening right now
@@ -139,10 +153,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       isLive = choice;
     }
     if (!mounted) return;
-    final created = await Navigator.of(context).push<bool>(
+    await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => LogWorkoutScreen(isLiveSession: isLive, template: template)),
     );
-    if (created == true) _refresh();
   }
 
   @override
@@ -227,12 +240,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     padding: const EdgeInsets.only(bottom: 14),
                     child: PremiumCard(
                       padding: const EdgeInsets.all(16),
-                      onTap: () async {
-                        final created = await Navigator.of(
-                          context,
-                        ).push<bool>(MaterialPageRoute(builder: (_) => const LogWorkoutScreen()));
-                        if (created == true) _refresh();
-                      },
+                      onTap: () => Navigator.of(
+                        context,
+                      ).push<bool>(MaterialPageRoute(builder: (_) => const LogWorkoutScreen())),
                       child: Row(
                         children: [
                           const LivePulseDot(),
@@ -259,32 +269,32 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               ),
               PremiumGradientButton(label: 'Log workout', icon: Icons.add, onTap: _startLogging),
               const SizedBox(height: 22),
-              FutureBuilder<List<Workout>>(
-                future: _future,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+              Builder(
+                builder: (context) {
+                  final store = context.watch<WorkoutsStore>();
+                  if (!store.isLoaded) {
+                    if (store.error != null) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Column(
+                          children: [
+                            Icon(Icons.cloud_off, size: 48, color: context.colors.textFaint),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Could not load workouts.\n${store.error}',
+                              textAlign: TextAlign.center,
+                              style: Premium.body(context, 12.5, color: context.colors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 60),
                       child: Center(child: CircularProgressIndicator(color: context.colors.accent)),
                     );
                   }
-                  if (snapshot.hasError) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40),
-                      child: Column(
-                        children: [
-                          Icon(Icons.cloud_off, size: 48, color: context.colors.textFaint),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Could not load workouts.\n${snapshot.error}',
-                            textAlign: TextAlign.center,
-                            style: Premium.body(context, 12.5, color: context.colors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  final workouts = snapshot.data ?? [];
+                  final workouts = store.workouts;
                   if (workouts.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 60),
@@ -304,9 +314,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                           padding: const EdgeInsets.only(bottom: 10),
                           child: _WorkoutRow(
                             workout: w,
-                            onTap: () => Navigator.of(
-                              context,
-                            ).push(MaterialPageRoute(builder: (_) => WorkoutDetailScreen(workout: w))),
+                            onTap: () => Navigator.of(context).push<bool>(
+                              MaterialPageRoute(builder: (_) => WorkoutDetailScreen(workout: w)),
+                            ),
+                            onEdit: () => _editWorkout(w),
+                            onDelete: () => _deleteWorkout(w),
                           ),
                         ),
                     ],
@@ -326,8 +338,15 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 class _WorkoutRow extends StatelessWidget {
   final Workout workout;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
-  const _WorkoutRow({required this.workout, required this.onTap});
+  const _WorkoutRow({
+    required this.workout,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -338,6 +357,7 @@ class _WorkoutRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 width: 40,
@@ -354,6 +374,7 @@ class _WorkoutRow extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       workout.name,
@@ -369,16 +390,42 @@ class _WorkoutRow extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, size: 20, color: context.colors.textFaint),
+              PopupMenuButton<String>(
+                padding: EdgeInsets.zero,
+                icon: Icon(Icons.chevron_right, size: 20, color: context.colors.textFaint),
+                onSelected: (value) {
+                  if (value == 'edit') onEdit();
+                  if (value == 'delete') onDelete();
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_outlined, size: 18, color: context.colors.accent),
+                        const SizedBox(width: 10),
+                        const Text('Edit'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF6B5C)),
+                        SizedBox(width: 10),
+                        Text('Delete'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 14),
           Row(
             children: [
-              _MiniStat(
-                label: 'Duration',
-                value: workout.duration.inMinutes > 0 ? '${workout.duration.inMinutes}m' : '-',
-              ),
+              _MiniStat(label: 'Duration', value: workout.durationLabel),
               _MiniStat(label: 'Volume', value: '${workout.totalVolume.toStringAsFixed(0)}kg'),
               _MiniStat(label: 'Sets', value: '${workout.totalSets}'),
             ],

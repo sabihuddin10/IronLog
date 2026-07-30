@@ -3,13 +3,42 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../core/app_colors.dart';
 import '../../data/body_profile_store.dart';
+import '../../data/workouts_store.dart';
 import '../../models/workout.dart';
 import '../../utils/health_formulas.dart';
+import 'edit_workout_screen.dart';
 
 class WorkoutDetailScreen extends StatelessWidget {
   final Workout workout;
 
   const WorkoutDetailScreen({super.key, required this.workout});
+
+  Future<void> _edit(BuildContext context) async {
+    final edited = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => EditWorkoutScreen(workout: workout)),
+    );
+    if (edited == true && context.mounted) Navigator.of(context).pop(true);
+  }
+
+  Future<void> _delete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete "${workout.name}"?'),
+        content: const Text('This workout will be permanently removed.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    await context.read<WorkoutsStore>().delete(workout.id);
+    if (context.mounted) Navigator.of(context).pop(true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +72,21 @@ class WorkoutDetailScreen extends StatelessWidget {
     final totalKcal = activeKcalSum + workout.restKcal;
 
     return Scaffold(
-      appBar: AppBar(title: Text(workout.name)),
+      appBar: AppBar(
+        title: Text(workout.name),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit_outlined, color: context.colors.accent),
+            tooltip: 'Edit',
+            onPressed: () => _edit(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Color(0xFFFF6B5C)),
+            tooltip: 'Delete',
+            onPressed: () => _delete(context),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -55,10 +98,7 @@ class WorkoutDetailScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _Stat(
-                label: 'Duration',
-                value: workout.duration.inMinutes > 0 ? '${workout.duration.inMinutes}m' : '-',
-              ),
+              _Stat(label: 'Duration', value: workout.durationLabel),
               _Stat(label: 'Volume', value: '${workout.totalVolume.toStringAsFixed(0)}kg'),
               _Stat(label: 'Sets', value: '${workout.totalSets}'),
               _Stat(label: 'Calories', value: '${totalKcal.toStringAsFixed(0)} kcal'),

@@ -5,6 +5,7 @@ import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../core/responsive.dart';
+import '../../data/workouts_store.dart';
 import '../../models/dashboard_stats.dart';
 import '../../repositories/dashboard_repository.dart';
 import '../workouts/active_workout_session.dart';
@@ -19,36 +20,32 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late Future<DashboardStats> _future;
-  late final ActiveWorkoutSession _session;
-  bool _sessionWasActive = false;
 
   @override
   void initState() {
     super.initState();
-    _future = context.read<DashboardRepository>().fetch();
-    _session = context.read<ActiveWorkoutSession>();
-    _sessionWasActive = _session.isActive;
-    _session.addListener(_onSessionChanged);
+    final store = context.read<WorkoutsStore>();
+    final dashboardRepository = context.read<DashboardRepository>();
+    // The dashboard tab stays alive (never disposed) in RootScreen's
+    // IndexedStack, so it won't naturally refetch when a workout is
+    // created/edited/deleted from another tab. WorkoutsStore notifies on
+    // every one of those, regardless of which screen performed it, so
+    // listening to it directly here keeps these stats current without the
+    // user having to pull-to-refresh.
+    store.addListener(_refresh);
+    _future = store.ensureLoaded().then((_) => dashboardRepository.fetch(store.workouts));
   }
 
   @override
   void dispose() {
-    _session.removeListener(_onSessionChanged);
+    context.read<WorkoutsStore>().removeListener(_refresh);
     super.dispose();
   }
 
-  // The dashboard tab stays alive (never disposed) in RootScreen's
-  // IndexedStack, so it won't naturally refetch when a workout is logged
-  // from another tab. ActiveWorkoutSession.finish() calls notifyListeners()
-  // right after saving, so refreshing on the active -> inactive transition
-  // keeps stats current without the user having to pull-to-refresh.
-  void _onSessionChanged() {
-    if (_sessionWasActive && !_session.isActive) _refresh();
-    _sessionWasActive = _session.isActive;
-  }
-
   void _refresh() {
-    setState(() => _future = context.read<DashboardRepository>().fetch());
+    setState(() {
+      _future = context.read<DashboardRepository>().fetch(context.read<WorkoutsStore>().workouts);
+    });
   }
 
   @override

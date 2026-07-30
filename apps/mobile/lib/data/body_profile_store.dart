@@ -106,7 +106,26 @@ class BodyProfileStore extends ChangeNotifier {
         ? (await FirebaseFirestore.instance.collection('users').doc(uid).get()).data()
         : await _loadLocal(uid);
     if (data == null) return;
+    // Just read this FROM storage — re-persisting it right back would be
+    // redundant (and, on Firestore, an unnecessary write on every app load).
+    applyJson(data, persist: false);
+  }
 
+  Map<String, dynamic> toJson() => {
+        'age': age,
+        'gender': gender.name,
+        'weightKg': _weightKg,
+        'weightInLbs': weightInLbs,
+        'heightCm': _heightCm,
+        'heightInFt': heightInFt,
+        'activityLevel': activityLevel.name,
+      };
+
+  /// Applies a previously-exported profile map (see [toJson]) to this
+  /// store's fields — shared by [loadForUser] (reading back what's already
+  /// stored, `persist: false`) and a CSV import (a genuine new value to
+  /// save, `persist: true`).
+  void applyJson(Map<String, dynamic> data, {bool persist = true}) {
     age = data['age'] as int? ?? age;
     gender = Gender.values.firstWhere(
       (g) => g.name == data['gender'],
@@ -121,6 +140,7 @@ class BodyProfileStore extends ChangeNotifier {
       orElse: () => activityLevel,
     );
     notifyListeners();
+    if (persist) _persist();
   }
 
   /// Clears the signed-in user and stops persisting further edits. Called
@@ -142,15 +162,7 @@ class BodyProfileStore extends ChangeNotifier {
   void _persist() {
     final uid = _uid;
     if (uid == null) return;
-    final data = {
-      'age': age,
-      'gender': gender.name,
-      'weightKg': _weightKg,
-      'weightInLbs': weightInLbs,
-      'heightCm': _heightCm,
-      'heightInFt': heightInFt,
-      'activityLevel': activityLevel.name,
-    };
+    final data = toJson();
     if (AppConfig.storeOnCloud) {
       FirebaseFirestore.instance.collection('users').doc(uid).set(data, SetOptions(merge: true));
     } else {

@@ -9,7 +9,10 @@ plugins {
 
 android {
     namespace = "com.weightmaster.ironlog"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_plugin_android_lifecycle (pulled in transitively by file_picker)
+    // requires compileSdk 36+; the bundled Flutter SDK's default
+    // (flutter.compileSdkVersion) is still 34, so pin it explicitly.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

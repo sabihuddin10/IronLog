@@ -84,10 +84,14 @@ void startWalkForegroundTask() {
 /// calling them from the main isolate.
 ///
 /// Persistence still happens on the main isolate: it owns the
-/// `WalkSessionRepository` (Provider-injected, Firestore/local-store), and
-/// is the only side that calls `FlutterForegroundTask.stopService()` in
-/// response to a user action — this handler only reports final stats back
-/// via [WalkTaskMessage.typeFinalStats] for the main isolate to persist.
+/// `WalkSessionRepository` (Provider-injected, Firestore/local-store), so
+/// this handler reports final stats back via [WalkTaskMessage.typeFinalStats]
+/// for the main isolate to persist *when it's around to receive them* — the
+/// in-app Finish button always gets a live main isolate. But the
+/// notification's Stop button can't assume that (it's the "app is
+/// backgrounded, not even open" case by design), so `onNotificationButtonPressed`
+/// below stops the service directly from here too rather than relying
+/// solely on the main isolate to do it in response to the relayed message.
 class _WalkTaskHandler extends TaskHandler {
   ActiveWalkSession? _session;
   StreamSubscription<AccelerometerEvent>? _sub;
@@ -208,15 +212,29 @@ class _WalkTaskHandler extends TaskHandler {
 
   @override
   void onNotificationButtonPressed(String id) {
-    // Pause/resume is handled locally so the accelerometer subscription and
-    // notification text update immediately, but it's still relayed to the
-    // main isolate too so its UI (pause icon, PopScope state) stays in
-    // sync. Stop is relayed only — finishing has to happen on the main
-    // isolate, which owns the `WalkSessionRepository` write and the actual
-    // `FlutterForegroundTask.stopService()` call.
     if (id == WalkNotificationActions.togglePause) {
+      // Handled locally so the accelerometer subscription and notification
+      // text update immediately, and relayed to the main isolate too so its
+      // UI (pause icon, PopScope state) stays in sync when it's around to
+      // receive it.
       _setPaused(!_paused);
+      FlutterForegroundTask.sendDataToMain(id);
+      return;
     }
-    FlutterForegroundTask.sendDataToMain(id);
+    if (id == WalkNotificationActions.stop) {
+      // Finishing used to be relayed to the main isolate only, which then
+      // asked this task for final stats and stopped the service itself —
+      // but that whole round trip silently does nothing if the main isolate
+      // isn't actively processing messages (app merely backgrounded, not
+      // foregrounded), which is exactly the state you're in when pressing
+      // Stop from the notification. Send final stats for the main isolate
+      // to persist *if* it's listening, but don't depend on it: stop the
+      // service directly from here too, so Stop reliably ends tracking and
+      // dismisses the notification either way.
+      _sendStats(WalkTaskMessage.typeFinalStats);
+      _stopListening();
+      FlutterForegroundTask.stopService();
+      return;
+    }
   }
 }

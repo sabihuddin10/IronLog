@@ -35,6 +35,17 @@ class _WorkoutTaskHandler extends TaskHandler {
 
   @override
   void onNotificationButtonPressed(String id) {
+    // Relay to main so it can persist the workout — it owns all the
+    // exercise/set data (see active_workout_session.dart) which nothing
+    // here has access to. But don't leave the notification stuck forever
+    // if the main isolate isn't around to process this (app backgrounded,
+    // not just the workout screen closed): stop the service directly too,
+    // matching the walk/run tracker's Stop button — see
+    // `walk_foreground_task.dart` for why that relay-only approach wasn't
+    // reliable. If main *is* listening, `ActiveWorkoutSession.finish()`
+    // saves and calls `stopService()` itself, which safely no-ops here
+    // since the service is already stopped by then.
     FlutterForegroundTask.sendDataToMain(id);
+    FlutterForegroundTask.stopService();
   }
 }

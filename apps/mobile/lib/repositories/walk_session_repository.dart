@@ -51,4 +51,24 @@ class WalkSessionRepository {
     }
     return session;
   }
+
+  Future<void> delete(String id) async {
+    if (AppConfig.storeOnCloud) {
+      await _collection.doc(id).delete();
+    } else {
+      await _local.remove(id);
+    }
+  }
+
+  /// Inserts or overwrites a session by its own id — used by CSV import to
+  /// restore a full [WalkSession] as-is (original id, original timestamps),
+  /// unlike [create] which always mints a new id and stamps `completedAt`
+  /// as now.
+  Future<void> upsert(WalkSession session) async {
+    if (AppConfig.storeOnCloud) {
+      await _collection.doc(session.id).set(session.toJson());
+    } else {
+      await _local.replace(session);
+    }
+  }
 }

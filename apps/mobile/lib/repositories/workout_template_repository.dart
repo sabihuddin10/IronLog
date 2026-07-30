@@ -41,4 +41,15 @@ class WorkoutTemplateRepository {
       await _local.remove(id);
     }
   }
+
+  /// Inserts or overwrites a preset by its own id — used by CSV import to
+  /// restore a full [WorkoutTemplate] as-is, unlike [create] which always
+  /// mints a new id.
+  Future<void> upsert(WorkoutTemplate template) async {
+    if (AppConfig.storeOnCloud) {
+      await _collection.doc(template.id).set(template.toJson());
+    } else {
+      await _local.replace(template);
+    }
+  }
 }

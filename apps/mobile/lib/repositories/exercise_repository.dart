@@ -51,4 +51,18 @@ class ExerciseRepository {
     }
     return exercise;
   }
+
+  /// Inserts or overwrites a custom exercise by its own id — used by CSV
+  /// import to restore a full [Exercise] as-is. Silently no-ops for
+  /// built-in exercises (`isCustom == false`): those are bundled reference
+  /// data from `assets/data/exercises.json`, not per-user content, and must
+  /// never be written to the custom collection.
+  Future<void> upsert(Exercise exercise) async {
+    if (!exercise.isCustom) return;
+    if (AppConfig.storeOnCloud) {
+      await _collection.doc(exercise.id).set(exercise.toJson());
+    } else {
+      await _local.replace(exercise);
+    }
+  }
 }

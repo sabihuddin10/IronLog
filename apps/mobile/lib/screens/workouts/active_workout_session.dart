@@ -2,9 +2,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../../data/workouts_store.dart';
 import '../../models/workout.dart' as domain;
 import '../../models/workout_template.dart';
-import '../../repositories/workout_repository.dart';
 import '../../utils/health_formulas.dart';
 import 'active_workout_models.dart';
 import 'workout_foreground_task.dart';
@@ -25,7 +26,7 @@ class ActiveWorkoutSession extends ChangeNotifier {
 
   DateTime? _startedAt;
   Timer? _ticker;
-  WorkoutRepository? _repository;
+  WorkoutsStore? _store;
   List<domain.Workout> history = [];
   bool isSaving = false;
 
@@ -43,15 +44,16 @@ class ActiveWorkoutSession extends ChangeNotifier {
   /// boilerplate (exercise list + target sets, pre-filled from what was
   /// typed while building it) instead of the default starter pair — see
   /// [WorkoutTemplate].
-  Future<void> start(WorkoutRepository repository, {bool isLiveSession = true, WorkoutTemplate? template}) async {
+  Future<void> start(WorkoutsStore store, {bool isLiveSession = true, WorkoutTemplate? template}) async {
     if (isActive) return;
     _startedAt = DateTime.now();
-    _repository = repository;
+    _store = store;
     this.isLiveSession = isLiveSession;
 
     List<domain.Workout> loadedHistory = [];
     try {
-      loadedHistory = await repository.list();
+      await store.ensureLoaded();
+      loadedHistory = store.workouts;
     } catch (_) {
       // Previous-performance prefill is a nice-to-have; an empty history
       // just means the starter exercises below show '-' instead.
@@ -69,8 +71,13 @@ class ActiveWorkoutSession extends ChangeNotifier {
       nameController.text = 'Push Day';
       exercises.addAll([
         ActiveExercise.fromLibrary(
-          exerciseId: 'ex-bench-press-barbell',
-          name: 'Bench Press (Barbell)',
+          // Must match the real library entry in assets/data/exercises.json
+          // exactly (id AND name) — the muscle-distribution chart resolves
+          // a logged set's category by looking up this id in the library,
+          // and "previous" prefill matches by name; a mismatched starter
+          // silently drops out of both instead of erroring.
+          exerciseId: 'ex-barbell-bench-press',
+          name: 'Barbell Bench Press',
           tip: 'Increase the weight next time.',
           history: history,
         ),
@@ -171,6 +178,16 @@ class ActiveWorkoutSession extends ChangeNotifier {
     }
     if (permission != NotificationPermission.granted) return;
 
+    // Android requires ACTIVITY_RECOGNITION (or BODY_SENSORS /
+    // HIGH_SAMPLING_RATE_SENSORS) to start a "health"-typed foreground
+    // service — without it, startForeground() throws a SecurityException
+    // and the service is silently killed with no notification ever shown.
+    var activityRecognition = await Permission.activityRecognition.status;
+    if (!activityRecognition.isGranted) {
+      activityRecognition = await Permission.activityRecognition.request();
+    }
+    if (!activityRecognition.isGranted) return;
+
     await FlutterForegroundTask.startService(
       serviceTypes: const [ForegroundServiceTypes.health],
       notificationTitle: 'Workout in progress',
@@ -200,8 +217,8 @@ class ActiveWorkoutSession extends ChangeNotifier {
   /// [_handleTaskData]'s notification "Finish" button, a background
   /// callback with no [BuildContext] to read the profile from.
   Future<bool> finish({double restKcal = 0}) async {
-    final repository = _repository;
-    if (repository == null || !isActive) return false;
+    final store = _store;
+    if (store == null || !isActive) return false;
 
     final workoutExercises = <domain.WorkoutExercise>[];
     for (var i = 0; i < exercises.length; i++) {
@@ -213,7 +230,7 @@ class ActiveWorkoutSession extends ChangeNotifier {
     isSaving = true;
     notifyListeners();
     try {
-      await repository.create(
+      await store.create(
         name: nameController.text.trim().isEmpty
             ? 'Workout'
             : nameController.text.trim(),
@@ -248,7 +265,7 @@ class ActiveWorkoutSession extends ChangeNotifier {
     exercises.clear();
     history = [];
     _startedAt = null;
-    _repository = null;
+    _store = null;
     notifyListeners();
   }
 }
