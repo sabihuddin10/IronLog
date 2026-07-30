@@ -74,6 +74,13 @@ class StatsRow extends StatelessWidget {
   final String durationLabel;
   final String caloriesLabel;
 
+  /// Overrides the Duration cell's value display when provided — used by
+  /// `EditWorkoutScreen` to make Duration itself a tap-to-edit inline field
+  /// (pink accent + dotted underline, swaps to number inputs on tap) while
+  /// [LogWorkoutScreen] keeps the plain default rendering (`null`), since a
+  /// live session's duration is the real stopwatch, not editable.
+  final Widget? durationValue;
+
   const StatsRow({
     super.key,
     required this.duration,
@@ -82,6 +89,7 @@ class StatsRow extends StatelessWidget {
     required this.calories,
     this.durationLabel = 'Duration',
     this.caloriesLabel = 'Calories',
+    this.durationValue,
   });
 
   @override
@@ -90,7 +98,7 @@ class StatsRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
       child: Row(
         children: [
-          Expanded(child: Stat(label: durationLabel, value: duration)),
+          Expanded(child: Stat(label: durationLabel, value: duration, valueWidget: durationValue)),
           _divider(context),
           Expanded(child: Stat(label: 'Volume', value: '${volume.toStringAsFixed(0)} kg')),
           _divider(context),
@@ -109,19 +117,31 @@ class Stat extends StatelessWidget {
   final String label;
   final String value;
 
-  const Stat({super.key, required this.label, required this.value});
+  /// Replaces the default value [Text] entirely when provided — see
+  /// [StatsRow.durationValue].
+  final Widget? valueWidget;
+
+  const Stat({super.key, required this.label, required this.value, this.valueWidget});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          value,
-          style: Premium.heading(context, 16),
-        ),
+        valueWidget ??
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                maxLines: 1,
+                softWrap: false,
+                style: Premium.heading(context, 16),
+              ),
+            ),
         const SizedBox(height: 4),
         Text(
           label.toUpperCase(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: Premium.body(context, 9, weight: FontWeight.w600, color: context.colors.textFaint).copyWith(letterSpacing: 0.5),
         ),
       ],

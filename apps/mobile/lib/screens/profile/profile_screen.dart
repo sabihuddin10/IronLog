@@ -1,18 +1,29 @@
+import 'dart:io';
+
 import 'package:fl_chart/fl_chart.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../auth/auth_state.dart';
 import '../../core/app_spacing.dart';
 import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../core/responsive.dart';
+import '../../data/body_profile_store.dart';
+import '../../data/csv_backup_service.dart';
+import '../../data/workouts_store.dart';
 import '../../models/workout.dart';
+import '../../repositories/exercise_repository.dart';
+import '../../repositories/walk_session_repository.dart';
+import '../../repositories/weight_goal_repository.dart';
+import '../../repositories/weight_repository.dart';
 import '../../repositories/workout_repository.dart';
+import '../../repositories/workout_template_repository.dart';
 import '../exercises/exercise_library_screen.dart';
 import '../tools/weight_tracker_screen.dart';
-import '../workouts/active_workout_session.dart';
 import '../workouts/workout_detail_screen.dart';
 import 'statistics_screen.dart';
 import 'theme_settings_screen.dart';
@@ -20,19 +31,23 @@ import 'workout_calendar_screen.dart';
 
 enum _Metric { volume, reps, duration }
 
-enum _Period { threeMonths, sixMonths, oneYear }
+enum _Period { oneMonth, threeMonths, sixMonths, oneYear, twoYears }
 
 extension on _Period {
   String get label => switch (this) {
+    _Period.oneMonth => 'Last month',
     _Period.threeMonths => 'Last 3 months',
     _Period.sixMonths => 'Last 6 months',
     _Period.oneYear => 'Last year',
+    _Period.twoYears => 'Last 2 years',
   };
 
   int get weeks => switch (this) {
+    _Period.oneMonth => 4,
     _Period.threeMonths => 12,
     _Period.sixMonths => 26,
     _Period.oneYear => 52,
+    _Period.twoYears => 104,
   };
 }
 
@@ -44,39 +59,20 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late Future<List<Workout>> _future;
-  late final ActiveWorkoutSession _session;
-  bool _sessionWasActive = false;
   _Metric _metric = _Metric.volume;
   _Period _period = _Period.threeMonths;
 
   @override
   void initState() {
     super.initState();
-    _future = context.read<WorkoutRepository>().list();
-    _session = context.read<ActiveWorkoutSession>();
-    _sessionWasActive = _session.isActive;
-    _session.addListener(_onSessionChanged);
+    // WorkoutsStore is shared app-wide (see main.dart) and every screen
+    // that lists/counts workouts watches it directly — a create/edit/delete
+    // from any one of them (this tab, the Workouts tab, a live session
+    // finishing) shows up here immediately, no manual refresh wiring needed.
+    context.read<WorkoutsStore>().ensureLoaded();
   }
 
-  @override
-  void dispose() {
-    _session.removeListener(_onSessionChanged);
-    super.dispose();
-  }
-
-  // This tab stays alive (never disposed) in RootScreen's IndexedStack, so
-  // finishing a workout from another tab wouldn't otherwise refetch it.
-  void _onSessionChanged() {
-    if (_sessionWasActive && !_session.isActive) _refresh();
-    _sessionWasActive = _session.isActive;
-  }
-
-  Future<void> _refresh() async {
-    final future = context.read<WorkoutRepository>().list();
-    setState(() => _future = future);
-    await future;
-  }
+  Future<void> _refresh() => context.read<WorkoutsStore>().refresh();
 
   DateTime _weekStart(DateTime d) {
     final date = DateTime(d.year, d.month, d.day);
@@ -128,6 +124,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.upload_file_outlined),
+              title: const Text('Export data as CSV'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _exportCsv();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.file_download_outlined),
+              title: const Text('Import data from CSV'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _importCsv();
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Log out'),
               onTap: () {
@@ -139,6 +151,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  // These take no BuildContext parameter and use the State's own `context`
+  // getter instead — the analyzer can correlate that with `mounted` across
+  // an await, whereas a locally-shadowed `context` parameter reads as an
+  // unrelated variable to it (`use_build_context_synchronously` flags it
+  // even after a real `mounted` guard).
+  CsvBackupService _backupService() => CsvBackupService(
+    workoutRepository: context.read<WorkoutRepository>(),
+    walkSessionRepository: context.read<WalkSessionRepository>(),
+    weightRepository: context.read<WeightRepository>(),
+    weightGoalRepository: context.read<WeightGoalRepository>(),
+    templateRepository: context.read<WorkoutTemplateRepository>(),
+    exerciseRepository: context.read<ExerciseRepository>(),
+    profileStore: context.read<BodyProfileStore>(),
+  );
+
+  Future<void> _exportCsv() async {
+    try {
+      final file = await _backupService().exportToFile();
+      if (!mounted) return;
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(file.path)], text: 'Ironlog data backup'),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      }
+    }
+  }
+
+  Future<void> _importCsv() async {
+    final result = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: ['csv']);
+    final path = result?.path;
+    if (path == null || !mounted) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Import data from CSV?'),
+        content: const Text('This will add or overwrite data from the selected file. Continue?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Import')),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      final csvText = await File(path).readAsString();
+      final summary = await _backupService().importCsv(csvText);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Imported ${summary.total} records.')));
+      await _refresh();
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Import failed: $e')));
+    }
   }
 
   @override
@@ -153,13 +223,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onRefresh: _refresh,
           color: context.colors.accent,
           backgroundColor: context.colors.cardBackground,
-          child: FutureBuilder<List<Workout>>(
-            future: _future,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+          child: Builder(
+            builder: (context) {
+              final store = context.watch<WorkoutsStore>();
+              if (!store.isLoaded) {
                 return Center(child: CircularProgressIndicator(color: context.colors.accent));
               }
-              final workouts = <Workout>[...snapshot.data ?? []]
+              final workouts = <Workout>[...store.workouts]
                 ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
 
               return ListView(
@@ -201,17 +271,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text('Workouts', style: Premium.heading(context, 16)),
                   SizedBox(height: context.scale(AppSpacing.md)),
                   if (workouts.isEmpty)
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.scale(AppSpacing.xxl),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'No workouts logged yet.',
-                          style: Premium.body(context, 13, color: context.colors.textSecondary),
-                        ),
-                      ),
-                    )
+                    _EmptyWorkoutsState(onImportCsv: _importCsv)
                   else
                     for (final w in workouts.take(5)) ...[
                       _WorkoutHistoryCard(workout: w),
@@ -303,7 +363,7 @@ class _Stat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(value, style: Premium.heading(context, 19)),
         const SizedBox(height: 2),
@@ -640,6 +700,76 @@ class _DashboardTile extends StatelessWidget {
   }
 }
 
+/// Shown in place of the workout history list when [workouts] is empty.
+/// Distinguishes "no workouts yet, but other data exists" (plain text) from
+/// "genuinely no data anywhere" (a prominent CSV-import CTA — the primary
+/// restore path after a fresh install or data loss).
+class _EmptyWorkoutsState extends StatelessWidget {
+  final VoidCallback onImportCsv;
+
+  const _EmptyWorkoutsState({required this.onImportCsv});
+
+  Future<bool> _hasOtherData(BuildContext context) async {
+    // Both reads happen before the first await, so there's no async gap
+    // between looking up the providers and using them.
+    final walkSessionRepository = context.read<WalkSessionRepository>();
+    final weightRepository = context.read<WeightRepository>();
+    final results = await Future.wait([walkSessionRepository.list(), weightRepository.list()]);
+    return results[0].isNotEmpty || results[1].isNotEmpty;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _hasOtherData(context),
+      builder: (context, snapshot) {
+        // Default to "assume there IS other data" while loading or on error,
+        // so an existing user with zero workouts (but other data) doesn't
+        // see the import CTA flash before settling on the plain text.
+        final hasOtherData = snapshot.data ?? true;
+
+        if (hasOtherData) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: context.scale(AppSpacing.xxl),
+            ),
+            child: Center(
+              child: Text(
+                'No workouts logged yet.',
+                style: Premium.body(context, 13, color: context.colors.textSecondary),
+              ),
+            ),
+          );
+        }
+
+        return PremiumCard(
+          padding: EdgeInsets.all(context.scale(AppSpacing.xl)),
+          radius: Premium.radiusXl,
+          child: Column(
+            children: [
+              PremiumIconChip(icon: Icons.file_download_outlined, size: 44),
+              SizedBox(height: context.scale(AppSpacing.md)),
+              Text('No data yet', style: Premium.heading(context, 16)),
+              SizedBox(height: context.scale(AppSpacing.xs)),
+              Text(
+                'Restore a previous backup to bring back your workouts, walks and weight history.',
+                textAlign: TextAlign.center,
+                style: Premium.body(context, 12.5, color: context.colors.textSecondary),
+              ),
+              SizedBox(height: context.scale(AppSpacing.lg)),
+              PremiumGradientButton(
+                label: 'Import Data from CSV',
+                icon: Icons.file_download_outlined,
+                onTap: onImportCsv,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _WorkoutHistoryCard extends StatelessWidget {
   final Workout workout;
 
@@ -667,10 +797,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
           SizedBox(height: context.scale(AppSpacing.md)),
           Row(
             children: [
-              _MiniStat(
-                label: 'Time',
-                value: workout.duration.inMinutes > 0 ? '${workout.duration.inMinutes}min' : '-',
-              ),
+              _MiniStat(label: 'Time', value: workout.durationLabel),
               _MiniStat(label: 'Volume', value: '${workout.totalVolume.toStringAsFixed(0)} kg'),
               _MiniStat(label: 'Sets', value: '${workout.totalSets}'),
             ],

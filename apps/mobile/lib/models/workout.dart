@@ -134,4 +134,14 @@ class Workout {
 
   Duration get duration =>
       completedAt != null ? completedAt!.difference(startedAt) : Duration.zero;
+
+  /// '-' only when there's truly no completion time recorded; workouts under
+  /// a minute show seconds instead of rounding down to a misleading '-'.
+  String get durationLabel {
+    if (completedAt == null) return '-';
+    final d = duration;
+    if (d.inMinutes > 0) return '${d.inMinutes}m';
+    if (d.inSeconds > 0) return '${d.inSeconds}s';
+    return '-';
+  }
 }

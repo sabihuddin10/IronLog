@@ -1,17 +1,17 @@
 import '../models/dashboard_stats.dart';
 import '../models/workout.dart';
 import 'weight_repository.dart';
-import 'workout_repository.dart';
 
 /// Derived data, not a stored source of truth — computed client-side from
 /// the workouts/weightLogs collections rather than a separate Firestore doc.
+/// [workouts] is passed in by the caller (from `WorkoutsStore`) rather than
+/// fetched here, so this stays in sync with whatever the rest of the app is
+/// currently showing instead of holding its own separate, independently
+/// stale copy.
 class DashboardRepository {
-  final WorkoutRepository _workoutRepository;
   final WeightRepository _weightRepository;
 
-  DashboardRepository({WorkoutRepository? workoutRepository, WeightRepository? weightRepository})
-      : _workoutRepository = workoutRepository ?? WorkoutRepository(),
-        _weightRepository = weightRepository ?? WeightRepository();
+  DashboardRepository({WeightRepository? weightRepository}) : _weightRepository = weightRepository ?? WeightRepository();
 
   /// Current (ending today or yesterday) and best-ever consecutive-day
   /// workout streaks, both computed from the same set of workout dates.
@@ -43,8 +43,7 @@ class DashboardRepository {
     return (current, best);
   }
 
-  Future<DashboardStats> fetch() async {
-    final workouts = await _workoutRepository.list();
+  Future<DashboardStats> fetch(List<Workout> workouts) async {
     final weightLogs = await _weightRepository.list();
     final (current, best) = _streaks(workouts);
 

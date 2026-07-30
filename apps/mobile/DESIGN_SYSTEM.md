@@ -25,19 +25,23 @@ AppColorTokens          (core/app_colors.dart)
   → ThemeExtension wrapper so any widget can read those roles via
     `context.colors.xxx`
 
-AppTypography           (core/app_typography.dart)
-  → builds the app's TextTheme (Manrope via google_fonts, Material's
-    default size/weight scale, colored per ThemeVars).
-
-AppTheme.build(vars)    (core/app_theme.dart)
-  → maps ThemeVars + AppTypography onto Flutter's ThemeData / ColorScheme
-    so built-in Material widgets (Button, Card, Chip, NavigationBar,
-    Dialog, ...) pick up the same colors and fonts automatically
+Premium                 (core/premium_theme.dart)
+  → the actual live theme. `Premium.themeData(brightness, accentColors)`
+    builds the app's `ThemeData` / `ColorScheme` (mapping accent + neutrals
+    onto every Material widget role) and its base `TextTheme` (Inter, via
+    `GoogleFonts.interTextTheme`). Also exposes `Premium.heading()` (Space
+    Grotesk) / `Premium.body()` (Inter) — the two text-style helpers every
+    screen should call directly rather than reading `Theme.of(context)
+    .textTheme.<role>`. There used to be a second, parallel theme builder
+    (`AppTheme.build` + a Manrope-based `AppTypography`) — it was never
+    wired into `ThemeController`/`app.dart`, so it rendered nothing and was
+    deleted; if you see either name mentioned elsewhere (old comments, this
+    doc's history), it no longer exists.
 
 ThemeController          (core/theme_controller.dart)
   → the runtime theme provider. A ChangeNotifier holding the active
     ThemeMode + PaletteId, exposing `lightTheme`/`darkTheme` (each built
-    via AppTheme.build), persisted via shared_preferences. Registered as
+    via `Premium.themeData`), persisted via shared_preferences. Registered as
     a singleton in `main.dart` (`ChangeNotifierProvider.value`, constructed
     once — never `create:`, so nothing can accidentally reconstruct it
     and re-trigger its async prefs load). `app.dart`'s `MaterialApp` reads
@@ -52,7 +56,7 @@ doc). It has now been re-added; `ThemeController` calls out its specific
 defensive choices (singleton registration, `notifyListeners()` only after
 an `await`) in its doc comment — read those before changing how it's wired.
 
-**Key rule (see the comment in `app_theme.dart`):** every Material color
+**Key rule (see the comment in `premium_theme.dart`):** every Material color
 *role* is pinned explicitly to a `ThemeVars` field. Material 3's
 `ColorScheme.fromSeed` auto-generates tonal palettes for
 primary/secondary/tertiary/container shades — that algorithm is **not**
@@ -133,7 +137,7 @@ Appearance picker — no other file needs to change.
 
 ## Buttons
 
-All button variants are themed globally in `AppTheme.build` — never set
+All button variants are themed globally in `Premium.themeData` — never set
 per-button colors inline unless intentionally deviating from the design
 system.
 
@@ -201,12 +205,17 @@ at 12% (splash) / 8% (highlight) opacity app-wide.
   ```
   `widthScale` is width/390 (iPhone 13/14 reference), clamped to
   `[0.82, 1.35]`.
-- Typography: `AppTypography.textTheme(vars)` (`core/app_typography.dart`)
-  builds a Manrope-based `TextTheme` (via `google_fonts`), reusing
-  Material's default size/weight scale. Always pull text style from
-  `Theme.of(context).textTheme.<role>` (optionally `.copyWith(...)` for a
-  real per-widget color/weight deviation) — never write a raw
-  `TextStyle(fontSize: N, ...)` literal.
+- Typography: `Premium.heading(context, size)` (Space Grotesk, headings/
+  titles/large numerics) and `Premium.body(context, size)` (Inter,
+  everything else) — both in `core/premium_theme.dart`. Call one of these
+  directly for every piece of text; don't read `Theme.of(context)
+  .textTheme.<role>` (that base `TextTheme` is Inter-only, used as the
+  fallback for unstyled Material widget text, not a role table to pull
+  headings from) and never write a raw `TextStyle(fontSize: N, ...)`
+  literal. Both are prefetched via `GoogleFonts.pendingFonts([...])` in
+  `main.dart` before `runApp` — if you introduce a new weight, add it there
+  too, or that weight's first use will briefly render in the platform
+  fallback font.
 
 ## Do / Don't
 
@@ -220,6 +229,7 @@ at 12% (splash) / 8% (highlight) opacity app-wide.
 - Don't: rely on Material's auto-generated tonal palette (`fromSeed`) for
   anything visible — it's deliberately overridden everywhere.
 - Don't: write a raw `TextStyle(fontSize: N, ...)` literal — use
-  `Theme.of(context).textTheme.<role>` (+ `.copyWith` for a real deviation).
+  `Premium.heading(context, size)` / `Premium.body(context, size)` (+
+  `.copyWith` for a real deviation).
 - Don't: register `ThemeController` with `ChangeNotifierProvider(create: ...)`
   — it must stay a singleton via `.value` (see Architecture above).

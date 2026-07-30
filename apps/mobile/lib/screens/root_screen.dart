@@ -52,8 +52,9 @@ class _RootScreenState extends State<RootScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMediumWindow)
+    if (!context.isMediumWindow) {
       return _CompactScaffold(index: _index, onSelect: _onSelect);
+    }
 
     return _SidebarScaffold(
       index: _index,
@@ -126,12 +127,17 @@ class _SidebarScaffold extends StatelessWidget {
             indicatorColor: context.colors.accentDim,
             selectedIconTheme: IconThemeData(color: context.colors.accent),
             unselectedIconTheme: IconThemeData(color: context.colors.textFaint),
-            selectedLabelTextStyle: Premium.body(context, 
+            selectedLabelTextStyle: Premium.body(
+              context,
               13,
               weight: FontWeight.w600,
               color: context.colors.textPrimary,
             ),
-            unselectedLabelTextStyle: Premium.body(context, 13, color: context.colors.textSecondary),
+            unselectedLabelTextStyle: Premium.body(
+              context,
+              13,
+              color: context.colors.textSecondary,
+            ),
             leading: Padding(
               padding: EdgeInsets.symmetric(vertical: extended ? 16 : 12),
               child: extended

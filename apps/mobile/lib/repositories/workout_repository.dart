@@ -47,4 +47,20 @@ class WorkoutRepository {
     }
     return workout;
   }
+
+  Future<void> update(Workout workout) async {
+    if (AppConfig.storeOnCloud) {
+      await _collection.doc(workout.id).set(workout.toJson());
+    } else {
+      await _local.replace(workout);
+    }
+  }
+
+  Future<void> delete(String id) async {
+    if (AppConfig.storeOnCloud) {
+      await _collection.doc(id).delete();
+    } else {
+      await _local.remove(id);
+    }
+  }
 }

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import '../../core/app_colors.dart';
@@ -78,14 +80,21 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
       _togglePause();
       return;
     }
-    if (data == WalkNotificationActions.stop) {
-      _finish();
-      return;
-    }
     if (data is Map) {
       _applyStats(data);
       if (data['type'] == WalkTaskMessage.typeFinalStats) {
-        _finishCompleter?.complete();
+        if (_finishCompleter != null) {
+          // The in-app Finish button is mid-request, awaiting exactly this.
+          _finishCompleter!.complete();
+        } else {
+          // Nothing asked for this — it's the notification's Stop button,
+          // which (see walk_foreground_task.dart) finishes and stops the
+          // service on its own now rather than waiting on this screen to be
+          // around to drive that round trip. Persist directly instead of
+          // going through _finish()'s task round-trip, since the task has
+          // already stopped itself by the time this arrives.
+          _finishFromNotification();
+        }
       }
     }
   }
@@ -115,6 +124,16 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
       permission = await FlutterForegroundTask.requestNotificationPermission();
     }
     if (permission != NotificationPermission.granted) return;
+
+    // Android requires ACTIVITY_RECOGNITION (or BODY_SENSORS /
+    // HIGH_SAMPLING_RATE_SENSORS) to start a "health"-typed foreground
+    // service — without it, startForeground() throws a SecurityException
+    // and the service is silently killed with no notification ever shown.
+    var activityRecognition = await Permission.activityRecognition.status;
+    if (!activityRecognition.isGranted) {
+      activityRecognition = await Permission.activityRecognition.request();
+    }
+    if (!activityRecognition.isGranted) return;
 
     await FlutterForegroundTask.startService(
       serviceTypes: const [ForegroundServiceTypes.health],
@@ -300,6 +319,33 @@ class _WalkRunTrackerScreenState extends State<WalkRunTrackerScreen> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  /// Stop pressed from the notification — the task isolate has already
+  /// stopped the service and sent its final stats (applied to
+  /// `_steps`/`_distanceMeters`/`_elapsed`/`_calories` just before this
+  /// runs), so this only needs to persist them, skipping `_finish()`'s
+  /// task round-trip entirely. Stopping from the notification means the
+  /// user wasn't necessarily looking at the app at all, so closing it
+  /// afterward mirrors how the notification action itself ended things,
+  /// rather than leaving a stale "live" screen open underneath.
+  Future<void> _finishFromNotification() async {
+    final startedAt = _startedAt;
+    if (startedAt == null || _saving) return;
+    setState(() => _saving = true);
+    try {
+      await context.read<WalkSessionRepository>().create(
+            steps: _steps,
+            distanceMeters: _distanceMeters,
+            duration: _elapsed,
+            startedAt: startedAt,
+            strideLengthMeters: _strideLengthMeters,
+            calories: _calories,
+          );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+    if (mounted) SystemNavigator.pop();
   }
 
   Future<void> _confirmDiscard() async {

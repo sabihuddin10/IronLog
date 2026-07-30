@@ -142,7 +142,34 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
   @override
   void initState() {
     super.initState();
+    _load();
+  }
+
+  void _load() {
     _future = context.read<WalkSessionRepository>().list();
+  }
+
+  Future<void> _deleteSession(WalkSession session) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete this session?'),
+        content: Text(
+          '${session.steps} steps · ${session.distanceKm.toStringAsFixed(2)} km from '
+          '${DateFormat.yMMMd().add_jm().format(session.startedAt)} will be removed.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await context.read<WalkSessionRepository>().delete(session.id);
+    if (mounted) setState(_load);
   }
 
   @override
@@ -174,6 +201,11 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
                       '${s.steps} steps · ${s.distanceKm.toStringAsFixed(2)} km · ${s.calories.toStringAsFixed(0)} kcal',
                     ),
                     subtitle: Text(DateFormat.yMMMd().add_jm().format(s.startedAt)),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      tooltip: 'Delete',
+                      onPressed: () => _deleteSession(s),
+                    ),
                   ),
               ],
             ],

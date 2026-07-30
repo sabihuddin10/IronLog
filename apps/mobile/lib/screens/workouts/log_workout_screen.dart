@@ -4,10 +4,10 @@ import '../../core/app_colors.dart';
 import '../../core/premium_theme.dart';
 import '../../core/premium_widgets.dart';
 import '../../data/body_profile_store.dart';
+import '../../data/workouts_store.dart';
 import '../../models/exercise.dart';
 import '../../models/workout_template.dart';
 import '../../repositories/exercise_repository.dart';
-import '../../repositories/workout_repository.dart';
 import '../../utils/health_formulas.dart';
 import 'active_workout_models.dart';
 import 'active_workout_session.dart';
@@ -44,7 +44,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> {
     final session = context.read<ActiveWorkoutSession>();
     if (!session.isActive) {
       session.start(
-        context.read<WorkoutRepository>(),
+        context.read<WorkoutsStore>(),
         isLiveSession: widget.isLiveSession,
         template: widget.template,
       );

@@ -10,7 +10,7 @@ import '../../models/weight_log.dart';
 import '../../repositories/weight_goal_repository.dart';
 import '../../repositories/weight_repository.dart';
 
-enum _Range { twoW, oneM, threeM, sixM, oneY, all }
+enum _Range { twoW, oneM, threeM, sixM, oneY, twoY, all }
 
 extension on _Range {
   String get longLabel => switch (this) {
@@ -19,6 +19,7 @@ extension on _Range {
         _Range.threeM => 'Last 3 months',
         _Range.sixM => 'Last 6 months',
         _Range.oneY => 'Last year',
+        _Range.twoY => 'Last 2 years',
         _Range.all => 'All time',
       };
 
@@ -28,6 +29,7 @@ extension on _Range {
         _Range.threeM => 90,
         _Range.sixM => 180,
         _Range.oneY => 365,
+        _Range.twoY => 730,
         _Range.all => null,
       };
 }

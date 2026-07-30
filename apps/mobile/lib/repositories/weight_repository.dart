@@ -46,4 +46,15 @@ class WeightRepository {
     }
     return log;
   }
+
+  /// Inserts or overwrites a log by its own id — used by CSV import to
+  /// restore a full [WeightLog] as-is (original id/timestamp), unlike
+  /// [create] which always mints a new id.
+  Future<void> upsert(WeightLog log) async {
+    if (AppConfig.storeOnCloud) {
+      await _collection.doc(log.id).set(log.toJson());
+    } else {
+      await _local.replace(log);
+    }
+  }
 }

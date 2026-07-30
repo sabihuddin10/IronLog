@@ -6,11 +6,17 @@ import '../../utils/health_formulas.dart';
 
 enum SetType { warmup, normal, failure }
 
-String _trimNum(double v) => v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
+String trimNum(double v) => v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
 
 class ActiveSet {
   SetType type;
-  final String previous;
+
+  /// Not [final] — [EditWorkoutScreen] builds sets synchronously from the
+  /// saved workout first (so the screen isn't blank while history loads),
+  /// then fills in the real previous-session label once
+  /// [WorkoutRepository.list] resolves, matching [previousLabelAt]'s
+  /// set-for-set order.
+  String previous;
 
   /// Strength fields (kg lifted, reps).
   final TextEditingController weightController;
@@ -36,13 +42,13 @@ class ActiveSet {
     int? initialReps,
     int? initialDurationSeconds,
     double? initialDistanceMeters,
-  })  : weightController = TextEditingController(text: initialWeight == null ? '' : _trimNum(initialWeight)),
+  })  : weightController = TextEditingController(text: initialWeight == null ? '' : trimNum(initialWeight)),
         repsController = TextEditingController(text: initialReps == null ? '' : '$initialReps'),
         durationController = TextEditingController(
-          text: initialDurationSeconds == null ? '' : _trimNum(initialDurationSeconds / 60),
+          text: initialDurationSeconds == null ? '' : trimNum(initialDurationSeconds / 60),
         ),
         distanceController = TextEditingController(
-          text: initialDistanceMeters == null ? '' : _trimNum(initialDistanceMeters / 1000),
+          text: initialDistanceMeters == null ? '' : trimNum(initialDistanceMeters / 1000),
         );
 
   void dispose() {
@@ -83,16 +89,14 @@ class ActiveExercise {
     bool isCardio = false,
     List<domain.Workout> history = const [],
   }) {
-    final previousSets = _previousSetsFor(name, history);
+    final previousSets = previousSetsFor(name, history);
     final sets = <ActiveSet>[];
 
     if (previousSets != null && previousSets.isNotEmpty) {
-      for (final s in previousSets) {
+      for (var i = 0; i < previousSets.length; i++) {
         sets.add(ActiveSet(
-          type: s.isWarmup ? SetType.warmup : SetType.normal,
-          previous: isCardio
-              ? _formatPreviousCardio(s.durationSeconds, s.distanceMeters)
-              : '${_trimNum(s.weight ?? 0)}kg × ${s.reps ?? 0}',
+          type: previousSets[i].isWarmup ? SetType.warmup : SetType.normal,
+          previous: previousLabelAt(i, isCardio, previousSets),
         ));
       }
     } else {
@@ -111,19 +115,14 @@ class ActiveExercise {
   /// [fromLibrary], so a preset-started session shows what you actually
   /// lifted last time alongside the preset's target.
   factory ActiveExercise.fromTemplate(TemplateExercise template, {List<domain.Workout> history = const []}) {
-    final previousSets = _previousSetsFor(template.exerciseName, history);
+    final previousSets = previousSetsFor(template.exerciseName, history);
     final sets = <ActiveSet>[];
 
     for (var i = 0; i < template.sets.length; i++) {
       final ts = template.sets[i];
-      final prev = previousSets != null && i < previousSets.length ? previousSets[i] : null;
       sets.add(ActiveSet(
         type: ts.isWarmup ? SetType.warmup : SetType.normal,
-        previous: prev == null
-            ? '-'
-            : template.isCardio
-                ? _formatPreviousCardio(prev.durationSeconds, prev.distanceMeters)
-                : '${_trimNum(prev.weight ?? 0)}kg × ${prev.reps ?? 0}',
+        previous: previousLabelAt(i, template.isCardio, previousSets),
         initialWeight: ts.weight,
         initialReps: ts.reps,
         initialDurationSeconds: ts.durationSeconds,
@@ -137,28 +136,6 @@ class ActiveExercise {
       sets: sets,
       isCardio: template.isCardio,
     );
-  }
-
-  /// Most recent completed set-by-set performance for an exercise, used to
-  /// show "previous" values while logging a new workout. [history] should
-  /// already be sorted most-recent-first (as `WorkoutRepository.list()`
-  /// returns it).
-  static List<domain.WorkoutSet>? _previousSetsFor(String exerciseName, List<domain.Workout> history) {
-    for (final workout in history) {
-      for (final exercise in workout.exercises) {
-        if (exercise.exerciseName == exerciseName) return exercise.sets;
-      }
-    }
-    return null;
-  }
-
-  static String _formatPreviousCardio(int? durationSeconds, double? distanceMeters) {
-    if (durationSeconds == null) return '-';
-    final m = durationSeconds ~/ 60;
-    final s = durationSeconds % 60;
-    final time = '$m:${s.toString().padLeft(2, '0')}';
-    if (distanceMeters == null) return time;
-    return '$time · ${_trimNum(distanceMeters / 1000)}km';
   }
 
   domain.WorkoutExercise? toDomain(int order) {
@@ -198,6 +175,43 @@ class ActiveExercise {
       sets: completedSets,
     );
   }
+}
+
+/// Most recent completed set-by-set performance for an exercise, used to
+/// show "previous" values while logging a new workout — and, via
+/// [previousLabelAt], while editing an already-saved one. [history] should
+/// already be sorted most-recent-first (as `WorkoutRepository.list()`
+/// returns it) and should exclude the workout currently being edited/logged,
+/// or it'd show itself as its own "previous".
+List<domain.WorkoutSet>? previousSetsFor(String exerciseName, List<domain.Workout> history) {
+  for (final workout in history) {
+    for (final exercise in workout.exercises) {
+      if (exercise.exerciseName == exerciseName) return exercise.sets;
+    }
+  }
+  return null;
+}
+
+String formatPreviousCardio(int? durationSeconds, double? distanceMeters) {
+  if (durationSeconds == null) return '-';
+  final m = durationSeconds ~/ 60;
+  final s = durationSeconds % 60;
+  final time = '$m:${s.toString().padLeft(2, '0')}';
+  if (distanceMeters == null) return time;
+  return '$time · ${trimNum(distanceMeters / 1000)}km';
+}
+
+/// Formats the "previous" label for set [index], matching it set-for-set
+/// against [previousSets] (as returned by [previousSetsFor]) — shared by
+/// [ActiveExercise.fromTemplate] (a preset's target sets vs. last time's
+/// actuals) and `EditWorkoutScreen` (a saved workout's own sets vs. the
+/// session before it).
+String previousLabelAt(int index, bool isCardio, List<domain.WorkoutSet>? previousSets) {
+  final prev = previousSets != null && index < previousSets.length ? previousSets[index] : null;
+  if (prev == null) return '-';
+  return isCardio
+      ? formatPreviousCardio(prev.durationSeconds, prev.distanceMeters)
+      : '${trimNum(prev.weight ?? 0)}kg × ${prev.reps ?? 0}';
 }
 
 /// Backfill/preview estimate of elapsed time for a list of active exercises
